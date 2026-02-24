@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linked List 鏈結串列 — 互動式學習</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f5f5f7;
+  --border: rgba(0,0,0,0.08);
+  --border-med: rgba(0,0,0,0.12);
+  --text: #1d1d1f;
+  --text-2: #3d3d42;
+  --text-3: #86868b;
+  --blue: #0071e3;
+  --blue-light: #e8f1fb;
+  --green: #34c759;
+  --green-light: #eaf7ed;
+  --red: #ff3b30;
+  --red-light: #fff1f0;
+  --orange: #ff9500;
+  --orange-light: #fff4e0;
+  --purple: #af52de;
+  --purple-light: #f5eefa;
+  --teal: #5ac8fa;
+  --teal-light: #e8f7fc;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', -apple-system, sans-serif;
+  --r: 18px;
+  --r-sm: 10px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 200; background: rgba(245,245,247,0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 2rem; gap: 0; }
+.nav-logo { font-size: 0.78rem; font-weight: 600; color: var(--text-2); letter-spacing: 0.05em; text-transform: uppercase; margin-right: 2.5rem; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 0; overflow-x: auto; }
+.tab-btn { background: none; border: none; color: var(--text-2); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 0 1rem; height: 52px; cursor: pointer; white-space: nowrap; position: relative; transition: color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--blue); font-weight: 500; }
+.tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--blue); border-radius: 2px 2px 0 0; }
+.tab-num { font-family: var(--mono); font-size: 0.6rem; color: var(--text-3); background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
+.tab-btn.active .tab-num { color: var(--blue); background: var(--blue-light); }
+
+/* PAGES */
+.page { display: none; max-width: 900px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+.page.active { display: block; animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Progress */
+.prog-track { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 3rem; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* Typography */
+.eyebrow { font-family: var(--mono); font-size: 0.7rem; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.page-title { font-size: 2.6rem; font-weight: 600; color: var(--text); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.6rem; }
+.page-sub { font-size: 1.05rem; color: var(--text-2); font-weight: 400; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+h2 { font-size: 0.75rem; font-weight: 600; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; margin: 2.5rem 0 1rem; }
+p { color: var(--text-2); line-height: 1.75; font-weight: 400; margin-bottom: 0.8rem; font-size: 0.95rem; }
+strong { color: var(--text); font-weight: 500; }
+
+/* Cards */
+.card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.card-blue   { background: var(--blue-light);   border-color: rgba(0,113,227,0.15); }
+.card-green  { background: var(--green-light);  border-color: rgba(52,199,89,0.2); }
+.card-red    { background: var(--red-light);    border-color: rgba(255,59,48,0.15); }
+.card-purple { background: var(--purple-light); border-color: rgba(175,82,222,0.15); }
+.card-orange { background: var(--orange-light); border-color: rgba(255,149,0,0.2); }
+.card-teal   { background: var(--teal-light);   border-color: rgba(90,200,250,0.25); }
+.tip-row { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.9rem; color: var(--text-2); font-weight: 400; }
+.tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Code */
+.code-wrap { background: #1c1c1e; border-radius: var(--r-sm); overflow: hidden; margin: 1rem 0; box-shadow: var(--shadow); }
+.code-bar { background: #2c2c2e; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.d-r{background:#ff5f57} .d-y{background:#febc2e} .d-g{background:#28c840}
+.code-lang { font-family: var(--mono); font-size: 0.65rem; color: #6e6e73; margin-left: auto; }
+pre { padding: 1.2rem 1.4rem; font-family: var(--mono); font-size: 0.82rem; line-height: 1.8; overflow-x: auto; color: #e8e8e8; }
+.kw{color:#fc5fa3} .ty{color:#5dd8ff} .nm{color:#d9c97c} .st{color:#fc6a5d} .cm{color:#6b6b6b;font-style:italic} .fn{color:#67b7a4}
+
+/* Output */
+.out { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0.9rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-2); min-height: 40px; line-height: 1.5; box-shadow: var(--shadow); }
+.out.ok   { background: var(--green-light);  color: #1a7a35; border-color: rgba(52,199,89,0.2); }
+.out.warn { background: var(--orange-light); color: #a05a00; border-color: rgba(255,149,0,0.2); }
+.out.info { background: var(--blue-light);   color: #004a99; border-color: rgba(0,113,227,0.2); }
+.out.err  { background: var(--red-light);    color: #cc1f18; border-color: rgba(255,59,48,0.15); }
+
+/* Controls */
+.ctrl-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.ctrl-sec { margin-bottom: 1.4rem; }
+.ctrl-sec:last-child { margin-bottom: 0; }
+.ctrl-lbl { font-size: 0.78rem; font-weight: 600; color: var(--text); letter-spacing: 0.03em; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; }
+.ctrl-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.inp { background: var(--bg); border: 1px solid var(--border-med); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.85rem; padding: 0.55rem 0.8rem; width: 80px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.inp:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+.btn { background: var(--surface); border: 1px solid var(--border-med); border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 0.55rem 1.1rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--bg); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.btn.primary:hover { background: #0077ed; }
+.btn.success { background: var(--green); color: white; border-color: var(--green); }
+.btn.success:hover { background: #2db34a; }
+.btn.danger  { background: var(--red);   color: white; border-color: var(--red); }
+.btn.danger:hover  { background: #e02d22; }
+.btn.ghost   { background: transparent; color: var(--text-2); border-color: var(--border-med); }
+.btn.ghost:hover   { background: var(--surface2); color: var(--text); }
+.btn.purple { background: var(--purple); color: white; border-color: var(--purple); }
+.btn.purple:hover { background: #9b3dca; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.b-green  { background: var(--green-light);  color: #1a7a35; }
+.b-orange { background: var(--orange-light); color: #a05a00; }
+.b-blue   { background: var(--blue-light);   color: #004a99; }
+.b-purple { background: var(--purple-light); color: #7b2d9e; }
+.b-red    { background: var(--red-light);    color: #cc1f18; }
+
+/* Table */
+.dtable { width: 100%; border-collapse: collapse; font-size: 0.88rem; margin: 1rem 0; background: var(--surface); border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.dtable th { background: var(--bg); color: var(--text-2); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.dtable td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-2); font-size: 0.88rem; font-weight: 400; }
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr:hover td { background: var(--bg); }
+
+/* Two-col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 2rem 0; }
+
+/* ===== LINKED LIST VISUALIZATION ===== */
+.ll-container { padding: 1.5rem 0; overflow-x: auto; }
+.ll-row { display: inline-flex; align-items: center; min-width: max-content; gap: 0; }
+
+/* Node */
+.ll-node { display: flex; align-items: stretch; background: var(--surface); border: 2px solid var(--border-med); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; cursor: pointer; }
+.ll-node:hover { border-color: var(--blue); transform: translateY(-2px); }
+.ll-node.highlight { border-color: var(--blue); background: var(--blue-light); }
+.ll-node.new { border-color: var(--green); background: var(--green-light); animation: nodeIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+.ll-node.delete { border-color: var(--red); background: var(--red-light); opacity: 0.5; }
+.ll-node.head { border-color: var(--purple); }
+.ll-node.tail { border-color: var(--orange); }
+
+@keyframes nodeIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.ll-data { padding: 0.8rem 1rem; font-family: var(--mono); font-size: 1rem; font-weight: 600; color: var(--text); min-width: 50px; text-align: center; border-right: 1px solid var(--border); }
+.ll-next { padding: 0.8rem 0.6rem; background: var(--bg); display: flex; align-items: center; justify-content: center; min-width: 36px; }
+.ll-next-dot { width: 8px; height: 8px; background: var(--text-2); border-radius: 50%; }
+.ll-node.tail .ll-next-dot { background: var(--red); }
+
+/* Arrow */
+.ll-arrow { display: flex; align-items: center; padding: 0 0.3rem; }
+.ll-arrow svg { width: 32px; height: 20px; }
+.ll-arrow path { fill: none; stroke: var(--text-3); stroke-width: 2; }
+.ll-arrow polygon { fill: var(--text-3); }
+
+/* NULL marker */
+.ll-null { font-family: var(--mono); font-size: 0.75rem; color: var(--red); background: var(--red-light); padding: 0.5rem 0.8rem; border-radius: 6px; border: 1px solid rgba(255,59,48,0.2); }
+
+/* Head/Tail labels */
+.ll-label { position: absolute; font-family: var(--mono); font-size: 0.65rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+.ll-label.head { background: var(--purple-light); color: var(--purple); top: -20px; left: 50%; transform: translateX(-50%); }
+.ll-label.tail { background: var(--orange-light); color: var(--orange); top: -20px; left: 50%; transform: translateX(-50%); }
+
+/* Node structure diagram */
+.node-struct { display: flex; justify-content: center; margin: 1.5rem 0; }
+.node-box { display: flex; background: var(--surface); border: 2px solid var(--purple); border-radius: 10px; overflow: hidden; box-shadow: var(--shadow); }
+.node-part { padding: 1.2rem 1.5rem; text-align: center; }
+.node-part:first-child { border-right: 2px solid var(--purple); background: var(--purple-light); }
+.node-part-label { font-family: var(--mono); font-size: 0.7rem; color: var(--text-3); margin-bottom: 0.3rem; }
+.node-part-value { font-family: var(--mono); font-size: 1.1rem; font-weight: 600; color: var(--text); }
+.node-part:last-child .node-part-value { color: var(--blue); }
+
+/* Doubly linked list node */
+.dll-node { display: flex; align-items: stretch; background: var(--surface); border: 2px solid var(--border-med); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+.dll-prev { padding: 0.6rem 0.5rem; background: var(--teal-light); display: flex; align-items: center; justify-content: center; min-width: 32px; border-right: 1px solid var(--border); }
+.dll-data { padding: 0.8rem 1rem; font-family: var(--mono); font-size: 1rem; font-weight: 600; color: var(--text); min-width: 50px; text-align: center; }
+.dll-next { padding: 0.6rem 0.5rem; background: var(--bg); display: flex; align-items: center; justify-content: center; min-width: 32px; border-left: 1px solid var(--border); }
+.dll-dot { width: 6px; height: 6px; background: var(--text-2); border-radius: 50%; }
+
+/* Circular arrow */
+.ll-circular { display: flex; align-items: center; justify-content: center; color: var(--purple); font-size: 0.8rem; padding: 0.5rem; }
+
+/* Quiz */
+.quiz-q { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1.2rem; box-shadow: var(--shadow); }
+.quiz-q .qt { font-size: 0.95rem; color: var(--text); margin-bottom: 1rem; line-height: 1.65; font-weight: 500; }
+.quiz-opts { display: flex; flex-direction: column; gap: 0.45rem; }
+.qopt { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0.65rem 1rem; cursor: pointer; font-size: 0.88rem; color: var(--text-2); transition: all 0.15s; display: flex; align-items: center; gap: 0.8rem; font-weight: 400; }
+.qopt:hover:not(.disabled) { background: var(--blue-light); border-color: rgba(0,113,227,0.25); color: var(--text); }
+.qopt.correct { background: var(--green-light); border-color: rgba(52,199,89,0.3); color: #1a7a35; }
+.qopt.wrong   { background: var(--red-light); border-color: rgba(255,59,48,0.2); color: var(--red); opacity: 0.7; }
+.ql { width: 22px; height: 22px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border-med); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; flex-shrink: 0; font-weight: 500; }
+.qfb { display: none; margin-top: 0.8rem; padding: 0.65rem 1rem; border-radius: var(--r-sm); font-size: 0.85rem; font-weight: 400; }
+.qfb.show { display: block; }
+.qfb.ok { background: var(--green-light); color: #1a7a35; border: 1px solid rgba(52,199,89,0.25); }
+.qfb.no { background: var(--red-light);   color: var(--red);   border: 1px solid rgba(255,59,48,0.2); }
+.score-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.score-num { font-family: var(--mono); font-size: 0.8rem; color: var(--text-2); }
+.score-num span { color: var(--green); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .page { padding: 1.5rem 1rem 4rem; }
+  .page-title { font-size: 1.8rem; }
+  .two-col { grid-template-columns: 1fr; }
+  nav { padding: 0 1rem; }
+  .nav-logo { margin-right: 1rem; }
+  .ll-data { padding: 0.6rem 0.8rem; font-size: 0.9rem; min-width: 40px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Linked List</span>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="show(0)">概念 <span class="tab-num">01</span></button>
+    <button class="tab-btn" onclick="show(1)">類型 <span class="tab-num">02</span></button>
+    <button class="tab-btn" onclick="show(2)">操作 <span class="tab-num">03</span></button>
+    <button class="tab-btn" onclick="show(3)">複雜度 <span class="tab-num">04</span></button>
+    <button class="tab-btn" onclick="show(4)">實作 <span class="tab-num">05</span></button>
+    <button class="tab-btn" onclick="show(5)">測驗 <span class="tab-num">06</span></button>
+  </div>
+</nav>
+
+<!-- 01 概念 -->
+<div class="page active" id="p0">
+  <div class="prog-track"><div class="prog-fill" style="width:16%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">Linked List 鏈結串列</h1>
+  <p class="page-sub">動態記憶體的藝術 — 用指標串連的節點序列</p>
+
+  <div class="card card-blue">
+    <div class="tip-row">
+      <span class="tip-icon">💡</span>
+      <span><strong>核心定義：</strong>Linked List 是由一系列<strong>節點 (Node)</strong> 組成的線性資料結構，每個節點包含<strong>資料</strong>和指向<strong>下一個節點的指標</strong>。節點在記憶體中<strong>不需要連續</strong>。</span>
+    </div>
+  </div>
+
+  <h2>節點結構</h2>
+  <p>每個節點包含兩個部分：</p>
+  
+  <div class="node-struct">
+    <div class="node-box">
+      <div class="node-part">
+        <div class="node-part-label">DATA</div>
+        <div class="node-part-value">42</div>
+      </div>
+      <div class="node-part">
+        <div class="node-part-label">NEXT</div>
+        <div class="node-part-value">→ 0x2F8</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">struct</span> <span class="ty">Node</span> {
+    <span class="ty">int</span> data;        <span class="cm">// 儲存的資料</span>
+    <span class="ty">Node</span>* next;      <span class="cm">// 指向下一個節點的指標</span>
+};
+
+<span class="cm">// 建立節點</span>
+<span class="ty">Node</span>* node = <span class="kw">new</span> <span class="ty">Node</span>();
+node-&gt;data = <span class="nm">42</span>;
+node-&gt;next = <span class="kw">nullptr</span>;</pre>
+  </div>
+
+  <h2>視覺化</h2>
+  <p>點擊節點查看詳細資訊：</p>
+  
+  <div class="ll-container">
+    <div class="ll-row" id="intro-ll"></div>
+  </div>
+  <div class="out" id="intro-log">← 點擊上方的節點</div>
+
+  <div class="divider"></div>
+
+  <h2>Array vs Linked List</h2>
+  <div class="two-col">
+    <div class="card card-green">
+      <p style="font-size:.78rem;font-weight:600;color:var(--green);margin-bottom:.6rem;letter-spacing:.04em">ARRAY — 連續記憶體</p>
+      <div style="display:flex;gap:2px;margin-bottom:.8rem">
+        <div style="width:36px;height:36px;background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">10</div>
+        <div style="width:36px;height:36px;background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">20</div>
+        <div style="width:36px;height:36px;background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">30</div>
+        <div style="width:36px;height:36px;background:rgba(52,199,89,.2);border:1px solid rgba(52,199,89,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">40</div>
+      </div>
+      <p style="font-size:.82rem">✓ 隨機存取 O(1)<br>✓ Cache 友好<br>✗ 插入/刪除需搬移 O(n)<br>✗ 大小固定</p>
+    </div>
+    <div class="card card-purple">
+      <p style="font-size:.78rem;font-weight:600;color:var(--purple);margin-bottom:.6rem;letter-spacing:.04em">LINKED LIST — 分散記憶體</p>
+      <div style="display:flex;gap:4px;align-items:center;margin-bottom:.8rem">
+        <div style="width:36px;height:36px;background:rgba(175,82,222,.2);border:1px solid rgba(175,82,222,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">10</div>
+        <span style="color:var(--text-3)">→</span>
+        <div style="width:36px;height:36px;background:rgba(175,82,222,.2);border:1px solid rgba(175,82,222,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">20</div>
+        <span style="color:var(--text-3)">→</span>
+        <div style="width:36px;height:36px;background:rgba(175,82,222,.2);border:1px solid rgba(175,82,222,.4);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:.8rem">30</div>
+      </div>
+      <p style="font-size:.82rem">✓ 動態大小<br>✓ 插入/刪除 O(1)*<br>✗ 只能循序存取 O(n)<br>✗ 額外指標空間</p>
+    </div>
+  </div>
+  <p style="font-size:.8rem;color:var(--text-3);text-align:center">* 已知位置時。若需先搜尋，仍需 O(n)</p>
+</div>
+
+<!-- 02 類型 -->
+<div class="page" id="p1">
+  <div class="prog-track"><div class="prog-fill" style="width:33%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">鏈結串列類型</h1>
+  <p class="page-sub">三種常見的 Linked List 變體</p>
+
+  <h2>1. Singly Linked List（單向）</h2>
+  <div class="card card-blue">
+    <div class="tip-row">
+      <span class="tip-icon">➡️</span>
+      <span>每個節點只有 <strong>next</strong> 指標，只能<strong>往後走</strong>，無法回頭。</span>
+    </div>
+  </div>
+  
+  <div class="ll-container">
+    <div class="ll-row">
+      <div class="ll-node head">
+        <div class="ll-data">A</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-node">
+        <div class="ll-data">B</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-node">
+        <div class="ll-data">C</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-node tail">
+        <div class="ll-data">D</div>
+        <div class="ll-next"><div class="ll-next-dot" style="background:var(--red)"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-null">NULL</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>2. Doubly Linked List（雙向）</h2>
+  <div class="card card-purple">
+    <div class="tip-row">
+      <span class="tip-icon">↔️</span>
+      <span>每個節點有 <strong>prev</strong> 和 <strong>next</strong> 兩個指標，可以<strong>雙向遍歷</strong>。空間換時間！</span>
+    </div>
+  </div>
+
+  <div class="ll-container">
+    <div class="ll-row" style="gap:8px">
+      <div class="ll-null">NULL</div>
+      <span style="color:var(--text-3);font-size:.9rem">←</span>
+      <div class="dll-node">
+        <div class="dll-prev"><div class="dll-dot" style="background:var(--teal)"></div></div>
+        <div class="dll-data">A</div>
+        <div class="dll-next"><div class="dll-dot"></div></div>
+      </div>
+      <span style="color:var(--text-3);font-size:.9rem">⇄</span>
+      <div class="dll-node">
+        <div class="dll-prev"><div class="dll-dot" style="background:var(--teal)"></div></div>
+        <div class="dll-data">B</div>
+        <div class="dll-next"><div class="dll-dot"></div></div>
+      </div>
+      <span style="color:var(--text-3);font-size:.9rem">⇄</span>
+      <div class="dll-node">
+        <div class="dll-prev"><div class="dll-dot" style="background:var(--teal)"></div></div>
+        <div class="dll-data">C</div>
+        <div class="dll-next"><div class="dll-dot"></div></div>
+      </div>
+      <span style="color:var(--text-3);font-size:.9rem">→</span>
+      <div class="ll-null">NULL</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">struct</span> <span class="ty">DNode</span> {
+    <span class="ty">int</span> data;
+    <span class="ty">DNode</span>* prev;   <span class="cm">// 指向前一個節點</span>
+    <span class="ty">DNode</span>* next;   <span class="cm">// 指向下一個節點</span>
+};</pre>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>3. Circular Linked List（環狀）</h2>
+  <div class="card card-orange">
+    <div class="tip-row">
+      <span class="tip-icon">🔄</span>
+      <span>最後一個節點的 next 指向<strong>第一個節點</strong>，形成環狀。適合循環處理的場景。</span>
+    </div>
+  </div>
+
+  <div class="ll-container">
+    <div class="ll-row">
+      <div class="ll-node head">
+        <div class="ll-data">A</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-node">
+        <div class="ll-data">B</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-node">
+        <div class="ll-data">C</div>
+        <div class="ll-next"><div class="ll-next-dot"></div></div>
+      </div>
+      <div class="ll-arrow"><svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg></div>
+      <div class="ll-circular">↩ 回到 A</div>
+    </div>
+  </div>
+
+  <h2>類型比較</h2>
+  <table class="dtable">
+    <thead><tr><th>類型</th><th>指標數</th><th>遍歷方向</th><th>空間</th><th>適用場景</th></tr></thead>
+    <tbody>
+      <tr><td>Singly</td><td>1</td><td>單向 →</td><td><span class="badge b-green">最小</span></td><td>Stack, 簡單清單</td></tr>
+      <tr><td>Doubly</td><td>2</td><td>雙向 ↔</td><td><span class="badge b-orange">較大</span></td><td>Browser History, LRU Cache</td></tr>
+      <tr><td>Circular</td><td>1~2</td><td>循環</td><td><span class="badge b-blue">依實作</span></td><td>Round Robin, 播放清單循環</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 03 操作 -->
+<div class="page" id="p2">
+  <div class="prog-track"><div class="prog-fill" style="width:50%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">互動操作</h1>
+  <p class="page-sub">親手操作，理解每個動作的步驟</p>
+
+  <div class="ll-container">
+    <div class="ll-row" id="op-ll"></div>
+  </div>
+
+  <div class="ctrl-panel">
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-green">O(1)</span> 插入頭部</div>
+      <div class="ctrl-row">
+        <input class="inp" id="ins-head-v" type="number" placeholder="值">
+        <button class="btn success" onclick="insertHead()">插入頭部</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-green">O(1)</span> 插入尾部（有 tail 指標）</div>
+      <div class="ctrl-row">
+        <input class="inp" id="ins-tail-v" type="number" placeholder="值">
+        <button class="btn primary" onclick="insertTail()">插入尾部</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-orange">O(n)</span> 在指定位置後插入</div>
+      <div class="ctrl-row">
+        <input class="inp" id="ins-after-i" type="number" placeholder="位置" min="0">
+        <input class="inp" id="ins-after-v" type="number" placeholder="值">
+        <button class="btn purple" onclick="insertAfter()">插入</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-orange">O(n)</span> 刪除指定位置</div>
+      <div class="ctrl-row">
+        <input class="inp" id="del-i" type="number" placeholder="位置" min="0">
+        <button class="btn danger" onclick="deleteAt()">刪除</button>
+        <button class="btn ghost" onclick="resetOp()">重置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="out" id="op-log">← 使用上方面板操作鏈結串列</div>
+
+  <div class="divider"></div>
+
+  <h2>插入頭部動畫</h2>
+  <p>觀察在頭部插入新節點時，只需修改指標：</p>
+  <div class="ctrl-row" style="margin:.8rem 0">
+    <button class="btn primary" onclick="animInsertHead()">▶ 播放動畫</button>
+    <button class="btn ghost" onclick="resetAnim()">重置</button>
+  </div>
+  <div class="ll-container">
+    <div class="ll-row" id="anim-ll"></div>
+  </div>
+  <div class="out" id="anim-log">點擊「播放動畫」查看插入步驟</div>
+</div>
+
+<!-- 04 複雜度 -->
+<div class="page" id="p3">
+  <div class="prog-track"><div class="prog-fill" style="width:66%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">時間複雜度</h1>
+  <p class="page-sub">Linked List 各操作的效能分析</p>
+
+  <table class="dtable">
+    <thead><tr><th>操作</th><th>Singly LL</th><th>Doubly LL</th><th>說明</th></tr></thead>
+    <tbody>
+      <tr><td>存取 arr[i]</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-orange">O(n)</span></td><td>必須從頭走訪</td></tr>
+      <tr><td>搜尋</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-orange">O(n)</span></td><td>最壞需遍歷全部</td></tr>
+      <tr><td>頭部插入</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td><td>只改 head 指標</td></tr>
+      <tr><td>尾部插入（有 tail）</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td><td>直接用 tail 指標</td></tr>
+      <tr><td>尾部插入（無 tail）</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-orange">O(n)</span></td><td>需走到最後</td></tr>
+      <tr><td>中間插入（已知位置）</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td><td>只改指標</td></tr>
+      <tr><td>頭部刪除</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td><td>只改 head</td></tr>
+      <tr><td>尾部刪除</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-green">O(1)</span></td><td>Singly 需找前一個</td></tr>
+      <tr><td>中間刪除（已知位置）</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td><td>只改指標</td></tr>
+    </tbody>
+  </table>
+
+  <div class="card card-blue" style="margin-top:1.5rem">
+    <div class="tip-row">
+      <span class="tip-icon">💡</span>
+      <span><strong>關鍵洞察：</strong>Linked List 的優勢在於「已知位置」時的插入/刪除只需 O(1)。但「找到位置」本身需要 O(n)。所以實際使用時，要考慮完整操作的時間。</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>Array vs Linked List 完整比較</h2>
+  <table class="dtable">
+    <thead><tr><th>操作</th><th>Array</th><th>Linked List</th><th>誰贏？</th></tr></thead>
+    <tbody>
+      <tr><td>隨機存取 [i]</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-orange">O(n)</span></td><td>Array</td></tr>
+      <tr><td>頭部插入</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-green">O(1)</span></td><td>Linked List</td></tr>
+      <tr><td>尾部插入</td><td><span class="badge b-green">O(1)*</span></td><td><span class="badge b-green">O(1)*</span></td><td>平手</td></tr>
+      <tr><td>中間插入</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-green">O(1)**</span></td><td>Linked List</td></tr>
+      <tr><td>搜尋（未排序）</td><td><span class="badge b-orange">O(n)</span></td><td><span class="badge b-orange">O(n)</span></td><td>平手</td></tr>
+      <tr><td>Cache 效能</td><td><span class="badge b-green">優秀</span></td><td><span class="badge b-red">差</span></td><td>Array</td></tr>
+      <tr><td>記憶體使用</td><td><span class="badge b-green">緊湊</span></td><td><span class="badge b-orange">額外指標</span></td><td>Array</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:.8rem;color:var(--text-3)">* Array 需要 vector/動態陣列；Linked List 需要 tail 指標<br>** 已知位置的情況</p>
+
+  <div class="card card-purple" style="margin-top:1.5rem">
+    <div class="tip-row">
+      <span class="tip-icon">🎯</span>
+      <span><strong>何時用 Linked List？</strong><br>1. 頻繁在頭部或中間插入/刪除<br>2. 不需要隨機存取<br>3. 資料大小無法預測<br>4. 實作 Stack、Queue、LRU Cache</span>
+    </div>
+  </div>
+</div>
+
+<!-- 05 實作 -->
+<div class="page" id="p4">
+  <div class="prog-track"><div class="prog-fill" style="width:83%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">C++ 實作</h1>
+  <p class="page-sub">從零開始建構 Singly Linked List</p>
+
+  <h2>節點結構</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">struct</span> <span class="ty">Node</span> {
+    <span class="ty">int</span> data;
+    <span class="ty">Node</span>* next;
+    
+    <span class="cm">// 建構函式</span>
+    <span class="fn">Node</span>(<span class="ty">int</span> val) : data(val), next(<span class="kw">nullptr</span>) {}
+};</pre>
+  </div>
+
+  <h2>Linked List 類別</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">class</span> <span class="ty">LinkedList</span> {
+<span class="kw">private</span>:
+    <span class="ty">Node</span>* head;
+    <span class="ty">Node</span>* tail;
+    <span class="ty">int</span> size;
+
+<span class="kw">public</span>:
+    <span class="fn">LinkedList</span>() : head(<span class="kw">nullptr</span>), tail(<span class="kw">nullptr</span>), size(<span class="nm">0</span>) {}
+    
+    <span class="cm">// 頭部插入 O(1)</span>
+    <span class="ty">void</span> <span class="fn">insertHead</span>(<span class="ty">int</span> val) {
+        <span class="ty">Node</span>* newNode = <span class="kw">new</span> <span class="ty">Node</span>(val);
+        newNode-&gt;next = head;
+        head = newNode;
+        <span class="kw">if</span> (!tail) tail = head;  <span class="cm">// 空串列時</span>
+        size++;
+    }
+    
+    <span class="cm">// 尾部插入 O(1)</span>
+    <span class="ty">void</span> <span class="fn">insertTail</span>(<span class="ty">int</span> val) {
+        <span class="ty">Node</span>* newNode = <span class="kw">new</span> <span class="ty">Node</span>(val);
+        <span class="kw">if</span> (!tail) {
+            head = tail = newNode;
+        } <span class="kw">else</span> {
+            tail-&gt;next = newNode;
+            tail = newNode;
+        }
+        size++;
+    }
+    
+    <span class="cm">// 刪除頭部 O(1)</span>
+    <span class="ty">void</span> <span class="fn">deleteHead</span>() {
+        <span class="kw">if</span> (!head) <span class="kw">return</span>;
+        <span class="ty">Node</span>* temp = head;
+        head = head-&gt;next;
+        <span class="kw">delete</span> temp;
+        <span class="kw">if</span> (!head) tail = <span class="kw">nullptr</span>;
+        size--;
+    }
+};</pre>
+  </div>
+
+  <h2>常見操作實作</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="cm">// 搜尋 O(n)</span>
+<span class="ty">Node</span>* <span class="fn">search</span>(<span class="ty">int</span> val) {
+    <span class="ty">Node</span>* curr = head;
+    <span class="kw">while</span> (curr) {
+        <span class="kw">if</span> (curr-&gt;data == val) <span class="kw">return</span> curr;
+        curr = curr-&gt;next;
+    }
+    <span class="kw">return</span> <span class="kw">nullptr</span>;
+}
+
+<span class="cm">// 在指定節點後插入 O(1)</span>
+<span class="ty">void</span> <span class="fn">insertAfter</span>(<span class="ty">Node</span>* prev, <span class="ty">int</span> val) {
+    <span class="kw">if</span> (!prev) <span class="kw">return</span>;
+    <span class="ty">Node</span>* newNode = <span class="kw">new</span> <span class="ty">Node</span>(val);
+    newNode-&gt;next = prev-&gt;next;
+    prev-&gt;next = newNode;
+    <span class="kw">if</span> (prev == tail) tail = newNode;
+    size++;
+}
+
+<span class="cm">// 遍歷列印 O(n)</span>
+<span class="ty">void</span> <span class="fn">print</span>() {
+    <span class="ty">Node</span>* curr = head;
+    <span class="kw">while</span> (curr) {
+        std::cout &lt;&lt; curr-&gt;data;
+        <span class="kw">if</span> (curr-&gt;next) std::cout &lt;&lt; <span class="st">" -> "</span>;
+        curr = curr-&gt;next;
+    }
+    std::cout &lt;&lt; <span class="st">" -> NULL"</span> &lt;&lt; std::endl;
+}</pre>
+  </div>
+
+  <div class="card card-orange" style="margin-top:1.5rem">
+    <div class="tip-row">
+      <span class="tip-icon">⚠️</span>
+      <span><strong>記憶體管理：</strong>在 C++ 中使用 <code>new</code> 建立節點後，記得在刪除時用 <code>delete</code> 釋放記憶體。否則會造成 Memory Leak！</span>
+    </div>
+  </div>
+
+  <h2>使用 STL: std::list</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;list&gt;</span>
+
+std::list&lt;<span class="ty">int</span>&gt; lst;
+
+lst.<span class="fn">push_front</span>(<span class="nm">10</span>);  <span class="cm">// 頭部插入</span>
+lst.<span class="fn">push_back</span>(<span class="nm">20</span>);   <span class="cm">// 尾部插入</span>
+lst.<span class="fn">pop_front</span>();      <span class="cm">// 刪除頭部</span>
+lst.<span class="fn">pop_back</span>();       <span class="cm">// 刪除尾部</span>
+
+<span class="cm">// 遍歷</span>
+<span class="kw">for</span> (<span class="ty">int</span> x : lst) {
+    std::cout &lt;&lt; x &lt;&lt; <span class="st">" "</span>;
+}
+
+<span class="cm">// std::list 是 Doubly Linked List！</span></pre>
+  </div>
+</div>
+
+<!-- 06 測驗 -->
+<div class="page" id="p5">
+  <div class="prog-track"><div class="prog-fill" style="width:100%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 3</div>
+  <h1 class="page-title">知識測驗</h1>
+  <p class="page-sub">確認你對 Linked List 的掌握程度</p>
+
+  <div class="score-bar"><div class="score-num">答對 <span id="sc">0</span> / 5 題</div></div>
+
+  <div class="quiz-q">
+    <div class="qt">Q1. Linked List 相比 Array 的主要優勢是？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q1','C')"><span class="ql">A</span>隨機存取更快</div>
+      <div class="qopt" onclick="qa(this,'q1','C')"><span class="ql">B</span>記憶體使用更少</div>
+      <div class="qopt" onclick="qa(this,'q1','C')"><span class="ql">C</span>在已知位置插入/刪除只需 O(1)</div>
+      <div class="qopt" onclick="qa(this,'q1','C')"><span class="ql">D</span>Cache 效能更好</div>
+    </div>
+    <div class="qfb" id="fb-q1">Linked List 在已知位置時，插入/刪除只需修改指標，不需要搬移元素。但隨機存取、記憶體效率、Cache 效能都不如 Array。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q2. 在 Singly Linked List 中，刪除尾部節點的時間複雜度是？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q2','B')"><span class="ql">A</span>O(1)</div>
+      <div class="qopt" onclick="qa(this,'q2','B')"><span class="ql">B</span>O(n)</div>
+      <div class="qopt" onclick="qa(this,'q2','B')"><span class="ql">C</span>O(log n)</div>
+      <div class="qopt" onclick="qa(this,'q2','B')"><span class="ql">D</span>O(n²)</div>
+    </div>
+    <div class="qfb" id="fb-q2">Singly Linked List 只有 next 指標，要刪除尾部必須找到倒數第二個節點來更新它的 next。這需要從頭走訪，所以是 O(n)。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q3. 以下哪種場景最適合使用 Linked List？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q3','D')"><span class="ql">A</span>需要頻繁用索引存取第 i 個元素</div>
+      <div class="qopt" onclick="qa(this,'q3','D')"><span class="ql">B</span>資料量固定且需要最佳 Cache 效能</div>
+      <div class="qopt" onclick="qa(this,'q3','D')"><span class="ql">C</span>需要 Binary Search 快速搜尋</div>
+      <div class="qopt" onclick="qa(this,'q3','D')"><span class="ql">D</span>需要頻繁在清單前端插入/刪除</div>
+    </div>
+    <div class="qfb" id="fb-q3">Linked List 的頭部插入/刪除是 O(1)，非常適合這種場景。Array 在頭部操作需要 O(n) 搬移所有元素。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q4. Doubly Linked List 相比 Singly Linked List 的優勢是？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q4','A')"><span class="ql">A</span>可以 O(1) 刪除尾部節點</div>
+      <div class="qopt" onclick="qa(this,'q4','A')"><span class="ql">B</span>使用更少的記憶體</div>
+      <div class="qopt" onclick="qa(this,'q4','A')"><span class="ql">C</span>隨機存取更快</div>
+      <div class="qopt" onclick="qa(this,'q4','A')"><span class="ql">D</span>Cache 效能更好</div>
+    </div>
+    <div class="qfb" id="fb-q4">Doubly Linked List 有 prev 指標，可以直接找到前一個節點，因此刪除尾部只需 O(1)。代價是每個節點多一個指標的空間。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q5. 下列程式碼執行後，head 指向的節點的 data 值是？</div>
+    <div class="code-wrap" style="margin-bottom:.8rem">
+      <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+      <pre><span class="ty">Node</span>* head = <span class="kw">new</span> <span class="ty">Node</span>(<span class="nm">10</span>);
+head-&gt;next = <span class="kw">new</span> <span class="ty">Node</span>(<span class="nm">20</span>);
+<span class="ty">Node</span>* newNode = <span class="kw">new</span> <span class="ty">Node</span>(<span class="nm">5</span>);
+newNode-&gt;next = head;
+head = newNode;</pre>
+    </div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">A</span>10</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">B</span>5</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">C</span>20</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">D</span>程式會錯誤</div>
+    </div>
+    <div class="qfb" id="fb-q5">這是頭部插入的操作！最後 head = newNode，所以 head 指向 data=5 的節點。完整結構是 5 → 10 → 20 → NULL。</div>
+  </div>
+
+  <div class="card card-green" id="final-card" style="display:none;margin-top:.5rem">
+    <p style="font-weight:600;color:var(--green);margin-bottom:.3rem">🎉 測驗完成</p>
+    <p id="final-txt" style="font-size:.88rem"></p>
+  </div>
+</div>
+
+<script>
+// NAV
+function show(n) {
+  document.querySelectorAll('.page').forEach(function(p,i){ p.classList.toggle('active',i===n); });
+  document.querySelectorAll('.tab-btn').forEach(function(t,i){ t.classList.toggle('active',i===n); });
+}
+
+// HELPERS
+function sleep(ms){ return new Promise(function(r){setTimeout(r,ms);}); }
+
+// Render Linked List
+function renderLL(containerId, data, options) {
+  options = options || {};
+  var el = document.getElementById(containerId);
+  el.innerHTML = '';
+  
+  data.forEach(function(val, i) {
+    // Node
+    var node = document.createElement('div');
+    node.className = 'll-node';
+    if (options.head === i) node.classList.add('head');
+    if (options.tail === i || (i === data.length - 1 && !options.noTail)) node.classList.add('tail');
+    if (options.highlight === i) node.classList.add('highlight');
+    if (options.new === i) node.classList.add('new');
+    if (options.delete === i) node.classList.add('delete');
+    
+    node.innerHTML = '<div class="ll-data">' + val + '</div><div class="ll-next"><div class="ll-next-dot"></div></div>';
+    
+    if (options.onClick) {
+      node.onclick = function() { options.onClick(i, val); };
+    }
+    
+    el.appendChild(node);
+    
+    // Arrow (except last)
+    if (i < data.length - 1 || options.showNull) {
+      var arrow = document.createElement('div');
+      arrow.className = 'll-arrow';
+      arrow.innerHTML = '<svg viewBox="0 0 32 20"><path d="M0 10 H24"/><polygon points="24,6 32,10 24,14"/></svg>';
+      el.appendChild(arrow);
+    }
+  });
+  
+  // NULL at end
+  if (options.showNull) {
+    var nullEl = document.createElement('div');
+    nullEl.className = 'll-null';
+    nullEl.textContent = 'NULL';
+    el.appendChild(nullEl);
+  }
+}
+
+// ── P0: INTRO ──
+var introData = [10, 25, 42, 88, 15];
+renderLL('intro-ll', introData, {
+  showNull: true,
+  head: 0,
+  onClick: function(i, val) {
+    renderLL('intro-ll', introData, { showNull: true, head: 0, highlight: i, onClick: arguments.callee });
+    var addr = 0x1000 + i * 0x100;
+    document.getElementById('intro-log').innerHTML = 
+      '<span style="color:var(--blue)">Node[' + i + ']</span>  ·  data = <strong>' + val + '</strong>  ·  ' +
+      'address: 0x' + addr.toString(16).toUpperCase() + '  ·  ' +
+      'next → ' + (i < introData.length - 1 ? '0x' + (addr + 0x100).toString(16).toUpperCase() : 'NULL');
+    document.getElementById('intro-log').className = 'out info';
+  }
+});
+
+// ── P2: OPERATIONS ──
+var opData = [15, 42, 7, 88, 31];
+
+function renderOp(opts) {
+  opts = opts || {};
+  opts.showNull = true;
+  opts.head = 0;
+  renderLL('op-ll', opData, opts);
+}
+renderOp();
+
+function insertHead() {
+  var v = parseInt(document.getElementById('ins-head-v').value);
+  if (isNaN(v)) { setLog('op-log', '❌ 請輸入數值', 'err'); return; }
+  opData.unshift(v);
+  renderOp({ new: 0 });
+  setLog('op-log', '✓ 在頭部插入 ' + v + '  ·  O(1) — 只需修改 head 指標', 'ok');
+}
+
+function insertTail() {
+  var v = parseInt(document.getElementById('ins-tail-v').value);
+  if (isNaN(v)) { setLog('op-log', '❌ 請輸入數值', 'err'); return; }
+  opData.push(v);
+  renderOp({ new: opData.length - 1 });
+  setLog('op-log', '✓ 在尾部插入 ' + v + '  ·  O(1) — 使用 tail 指標直接存取', 'ok');
+}
+
+function insertAfter() {
+  var i = parseInt(document.getElementById('ins-after-i').value);
+  var v = parseInt(document.getElementById('ins-after-v').value);
+  if (isNaN(i) || isNaN(v) || i < 0 || i >= opData.length) { 
+    setLog('op-log', '❌ 無效的位置或數值', 'err'); return; 
+  }
+  opData.splice(i + 1, 0, v);
+  renderOp({ new: i + 1 });
+  setLog('op-log', '✓ 在位置 ' + i + ' 後插入 ' + v + '  ·  找位置 O(n) + 插入 O(1)', 'warn');
+}
+
+function deleteAt() {
+  var i = parseInt(document.getElementById('del-i').value);
+  if (isNaN(i) || i < 0 || i >= opData.length) { 
+    setLog('op-log', '❌ 無效的位置', 'err'); return; 
+  }
+  var deleted = opData[i];
+  opData.splice(i, 1);
+  renderOp();
+  setLog('op-log', '✓ 刪除位置 ' + i + ' 的節點 (' + deleted + ')  ·  找位置 O(n) + 刪除 O(1)', 'warn');
+}
+
+function resetOp() {
+  opData = [15, 42, 7, 88, 31];
+  renderOp();
+  setLog('op-log', '← 已重置');
+}
+
+function setLog(id, txt, cls) {
+  var el = document.getElementById(id);
+  el.className = 'out' + (cls ? ' ' + cls : '');
+  el.innerHTML = txt;
+}
+
+// ── P2: ANIMATION ──
+var animData = [10, 20, 30];
+var animRunning = false;
+
+function renderAnim(opts) {
+  opts = opts || {};
+  opts.showNull = true;
+  opts.head = 0;
+  renderLL('anim-ll', animData, opts);
+}
+renderAnim();
+
+async function animInsertHead() {
+  if (animRunning) return;
+  animRunning = true;
+  
+  animData = [10, 20, 30];
+  renderAnim();
+  setLog('anim-log', '準備在頭部插入 5...');
+  await sleep(800);
+  
+  setLog('anim-log', '步驟 1：建立新節點 (data=5)');
+  await sleep(1000);
+  
+  setLog('anim-log', '步驟 2：將新節點的 next 指向原本的 head');
+  await sleep(1000);
+  
+  setLog('anim-log', '步驟 3：將 head 指向新節點');
+  animData.unshift(5);
+  renderAnim({ new: 0 });
+  await sleep(800);
+  
+  setLog('anim-log', '✓ 完成！只修改了指標，時間複雜度 O(1)', 'ok');
+  animRunning = false;
+}
+
+function resetAnim() {
+  animRunning = false;
+  animData = [10, 20, 30];
+  renderAnim();
+  setLog('anim-log', '點擊「播放動畫」查看插入步驟');
+}
+
+// ── P5: QUIZ ──
+var qAns = {q1:'C', q2:'B', q3:'D', q4:'A', q5:'B'};
+var qDone = {}, score = 0;
+
+function qa(el, qid, correct) {
+  if (qDone[qid]) return;
+  qDone[qid] = true;
+  var opts = el.parentElement.querySelectorAll('.qopt');
+  opts.forEach(function(o){ o.classList.add('disabled'); });
+  var labels = ['A','B','C','D'];
+  var chosen = labels[Array.from(opts).indexOf(el)];
+  var ok = chosen === qAns[qid];
+  el.classList.add(ok ? 'correct' : 'wrong');
+  if (!ok) opts[labels.indexOf(qAns[qid])].classList.add('correct');
+  var fb = document.getElementById('fb-' + qid);
+  fb.classList.add('show', ok ? 'ok' : 'no');
+  if (!ok) fb.textContent = '✗ 正確答案是 ' + qAns[qid] + '。 ' + fb.textContent;
+  else { fb.textContent = '✓ 正確！' + fb.textContent; score++; }
+  document.getElementById('sc').textContent = score;
+  if (Object.keys(qDone).length === 5) {
+    var fc = document.getElementById('final-card');
+    fc.style.display = 'block';
+    var pct = Math.round(score / 5 * 100);
+    document.getElementById('final-txt').textContent =
+      score === 5 ? '滿分！你已經完全掌握 Linked List，可以進入下一個單元了。' :
+      pct >= 60 ? '答對 ' + score + '/5 題（' + pct + '%）。建議複習答錯的部分。' :
+      '答對 ' + score + '/5 題（' + pct + '%）。建議回到前面章節重新複習。';
+  }
+}
+</script>
+</body>
+</html>

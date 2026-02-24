@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Array 陣列 — 互動式學習</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- 引入 Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f5f5f7;
+  --border: rgba(0,0,0,0.08);
+  --border-med: rgba(0,0,0,0.12);
+  --text: #1d1d1f;
+  --text-2: #3d3d42;
+  --text-3: #86868b;
+  --blue: #0071e3;
+  --blue-light: #e8f1fb;
+  --green: #34c759;
+  --green-light: #eaf7ed;
+  --red: #ff3b30;
+  --red-light: #fff1f0;
+  --orange: #ff9500;
+  --orange-light: #fff4e0;
+  --purple: #af52de;
+  --purple-light: #f5eefa;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', -apple-system, sans-serif;
+  --r: 18px;
+  --r-sm: 10px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 200; background: rgba(245,245,247,0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 2rem; gap: 0; }
+.nav-logo { font-size: 0.78rem; font-weight: 600; color: var(--text-2); letter-spacing: 0.05em; text-transform: uppercase; margin-right: 2.5rem; white-space: nowrap; }
+.nav-tabs { display: flex; gap: 0; overflow-x: auto; }
+.tab-btn { background: none; border: none; color: var(--text-2); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 0 1rem; height: 52px; cursor: pointer; white-space: nowrap; position: relative; transition: color 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--blue); font-weight: 500; }
+.tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--blue); border-radius: 2px 2px 0 0; }
+.tab-num { font-family: var(--mono); font-size: 0.6rem; color: var(--text-3); background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
+.tab-btn.active .tab-num { color: var(--blue); background: var(--blue-light); }
+
+/* PAGES */
+.page { display: none; max-width: 860px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+.page.active { display: block; animation: fadeUp 0.35s cubic-bezier(0.4,0,0.2,1); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Progress */
+.prog-track { height: 3px; background: var(--border); border-radius: 2px; margin-bottom: 3rem; overflow: hidden; }
+.prog-fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+/* Typography */
+.eyebrow { font-family: var(--mono); font-size: 0.7rem; color: var(--blue); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.page-title { font-size: 2.6rem; font-weight: 600; color: var(--text); letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.6rem; }
+.page-sub { font-size: 1.05rem; color: var(--text-2); font-weight: 400; margin-bottom: 2.5rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border); }
+h2 { font-size: 0.75rem; font-weight: 600; color: var(--text); letter-spacing: 0.08em; text-transform: uppercase; margin: 2.5rem 0 1rem; }
+p { color: var(--text-2); line-height: 1.75; font-weight: 400; margin-bottom: 0.8rem; font-size: 0.95rem; }
+strong { color: var(--text); font-weight: 500; }
+
+/* Cards */
+.card { background: var(--surface); border-radius: var(--r); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.card-blue   { background: var(--blue-light);   border-color: rgba(0,113,227,0.15); }
+.card-green  { background: var(--green-light);  border-color: rgba(52,199,89,0.2); }
+.card-red    { background: var(--red-light);    border-color: rgba(255,59,48,0.15); }
+.card-purple { background: var(--purple-light); border-color: rgba(175,82,222,0.15); }
+.card-orange { background: var(--orange-light); border-color: rgba(255,149,0,0.2); }
+.tip-row { display: flex; gap: 0.6rem; align-items: flex-start; font-size: 0.9rem; color: var(--text-2); font-weight: 400; }
+.tip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+/* Code */
+.code-wrap { background: #1c1c1e; border-radius: var(--r-sm); overflow: hidden; margin: 1rem 0; box-shadow: var(--shadow); }
+.code-bar { background: #2c2c2e; padding: 0.6rem 1rem; display: flex; align-items: center; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; }
+.d-r{background:#ff5f57} .d-y{background:#febc2e} .d-g{background:#28c840}
+.code-lang { font-family: var(--mono); font-size: 0.65rem; color: #6e6e73; margin-left: auto; }
+pre { padding: 1.2rem 1.4rem; font-family: var(--mono); font-size: 0.82rem; line-height: 1.8; overflow-x: auto; color: #e8e8e8; }
+.kw{color:#fc5fa3} .ty{color:#5dd8ff} .nm{color:#d9c97c} .st{color:#fc6a5d} .cm{color:#6b6b6b;font-style:italic} .fn{color:#67b7a4}
+
+/* Array cells & Animation Upgrades */
+.vis-wrap { overflow-x: auto; padding: 0.5rem 0 2rem; }
+.arr-row { display: inline-flex; align-items: stretch; border-radius: var(--r-sm); overflow: visible; padding: 10px 0; }
+.cw { display: flex; flex-direction: column; align-items: center; position: relative; }
+.cell { width: 62px; height: 62px; background: var(--surface); border: 1px solid var(--border-med); border-right: none; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 1rem; font-weight: 500; color: var(--text); cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative; }
+.cw:first-child .cell { border-top-left-radius: var(--r-sm); border-bottom-left-radius: var(--r-sm); }
+.cw:last-child .cell { border-right: 1px solid var(--border-med); border-top-right-radius: var(--r-sm); border-bottom-right-radius: var(--r-sm); }
+.cell:hover { background: var(--bg); }
+.cell.c-blue   { background: var(--blue-light);   color: var(--blue);   border-color: rgba(0,113,227,0.4); z-index: 2; border-right: 1px solid rgba(0,113,227,0.4); }
+.cell.c-orange { background: var(--orange-light); color: var(--orange); border-color: rgba(255,149,0,0.4); z-index: 2; border-right: 1px solid rgba(255,149,0,0.4); }
+.cell.c-green  { background: var(--green-light);  color: var(--green);  border-color: rgba(52,199,89,0.4); z-index: 2; border-right: 1px solid rgba(52,199,89,0.4); animation: pop 0.35s cubic-bezier(0.34,1.56,0.64,1); }
+.cell.c-red    { background: var(--red-light);    color: var(--red);    border-color: rgba(255,59,48,0.15); opacity: 0.5; }
+.cell.dim      { opacity: 0.3; }
+
+/* 新增：物理搬移視覺化 class */
+.cell.shifting {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    background: var(--orange-light);
+    color: var(--orange);
+    border: 1px solid rgba(255,149,0,0.5);
+    border-radius: 6px;
+    z-index: 10;
+}
+
+@keyframes pop { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+.cidx { font-family: var(--mono); font-size: 0.65rem; color: var(--text-2); margin-top: 5px; }
+
+/* Output */
+.out { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0.9rem 1.2rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-2); min-height: 40px; line-height: 1.5; box-shadow: var(--shadow); transition: all 0.3s; }
+.out.ok   { background: var(--green-light);  color: #1a7a35; border-color: rgba(52,199,89,0.2); }
+.out.warn { background: var(--orange-light); color: #a05a00; border-color: rgba(255,149,0,0.2); }
+.out.info { background: var(--blue-light);   color: #004a99; border-color: rgba(0,113,227,0.2); }
+.out.err  { background: var(--red-light);    color: #cc1f18; border-color: rgba(255,59,48,0.15); }
+
+/* Controls */
+.ctrl-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+.ctrl-sec { margin-bottom: 1.4rem; }
+.ctrl-sec:last-child { margin-bottom: 0; }
+.ctrl-lbl { font-size: 0.78rem; font-weight: 600; color: var(--text); letter-spacing: 0.03em; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.5rem; }
+.ctrl-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.inp { background: var(--bg); border: 1px solid var(--border-med); border-radius: 8px; color: var(--text); font-family: var(--mono); font-size: 0.85rem; padding: 0.55rem 0.8rem; width: 80px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+.inp:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(0,113,227,0.12); }
+.btn { background: var(--surface); border: 1px solid var(--border-med); border-radius: 8px; color: var(--text); font-family: var(--sans); font-size: 0.85rem; font-weight: 500; padding: 0.55rem 1.1rem; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.btn:hover { background: var(--bg); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--blue); color: white; border-color: var(--blue); }
+.btn.primary:hover { background: #0077ed; }
+.btn.success { background: var(--green); color: white; border-color: var(--green); }
+.btn.success:hover { background: #2db34a; }
+.btn.danger  { background: var(--red);   color: white; border-color: var(--red); }
+.btn.danger:hover  { background: #e02d22; }
+.btn.ghost   { background: transparent; color: var(--text-2); border-color: var(--border-med); }
+.btn.ghost:hover   { background: var(--surface2); color: var(--text); }
+.btn.amber { background: var(--orange); color: white; border-color: var(--orange); }
+.btn.amber:hover { background: #e08600; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.b-green  { background: var(--green-light);  color: #1a7a35; }
+.b-orange { background: var(--orange-light); color: #a05a00; }
+.b-blue   { background: var(--blue-light);   color: #004a99; }
+
+/* Table */
+.dtable { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 1rem 0; background: var(--surface); border-radius: var(--r-sm); overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
+.dtable th { background: var(--bg); color: var(--text-2); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+.dtable td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-2); font-size: 0.88rem; font-weight: 400; }
+.dtable tr:last-child td { border-bottom: none; }
+.dtable tr:hover td { background: var(--bg); }
+
+/* Memory rows & Math Animation */
+.mem-row { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); margin-bottom: 0.4rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow); }
+.mem-row:hover,.mem-row.active { background: var(--blue-light); border-color: rgba(0,113,227,0.25); }
+.m-addr { color: var(--purple); width: 80px; flex-shrink: 0; font-weight: 600; }
+.m-val  { color: var(--text); flex: 1; }
+.m-note { color: var(--text-2); font-size: 0.72rem; opacity: 0.8; }
+.calc-card { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 1.2rem 1.5rem; font-family: var(--mono); font-size: 0.85rem; margin-top: 0.8rem; box-shadow: var(--shadow); }
+.math-hl { transition: all 0.4s ease; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+
+/* Chart Container */
+.chart-wrapper { position: relative; height: 320px; width: 100%; margin-top: 1rem; }
+
+/* Two-col */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 2rem 0; }
+
+/* Vector */
+.vec-wrap { overflow-x: auto; padding: 0.5rem 0 1rem; }
+.vec-row { display: inline-flex; gap: 0; min-width: max-content; }
+.vcell { width: 54px; height: 54px; background: var(--surface); border: 1px solid var(--border-med); border-right: none; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.9rem; font-weight: 500; color: var(--text); transition: all 0.25s; }
+.vcell:first-child { border-top-left-radius: var(--r-sm); border-bottom-left-radius: var(--r-sm); }
+.vcell:last-of-type { border-right: 1px solid var(--border-med); border-top-right-radius: var(--r-sm); border-bottom-right-radius: var(--r-sm); }
+.vcell.vnew { background: var(--green-light); color: var(--green); border-color: rgba(52,199,89,0.3); animation: pop 0.35s cubic-bezier(0.34,1.56,0.64,1); z-index: 2; position: relative; }
+.cap-g { width: 54px; height: 54px; border: 1px dashed var(--border-med); border-left: none; display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 0.55rem; font-family: var(--mono); }
+.cap-g:last-child { border-top-right-radius: var(--r-sm); border-bottom-right-radius: var(--r-sm); border-right: 1px dashed var(--border-med); }
+.vstats { display: flex; gap: 1.5rem; flex-wrap: wrap; font-family: var(--mono); font-size: 0.8rem; color: var(--text-2); margin-top: 0.6rem; }
+.vstats b { color: var(--text-2); font-weight: 500; }
+
+/* Quiz */
+.quiz-q { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 1.5rem; margin-bottom: 1.2rem; box-shadow: var(--shadow); }
+.quiz-q .qt { font-size: 0.95rem; color: var(--text); margin-bottom: 1rem; line-height: 1.65; font-weight: 500; }
+.quiz-opts { display: flex; flex-direction: column; gap: 0.45rem; }
+.qopt { background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0.65rem 1rem; cursor: pointer; font-size: 0.88rem; color: var(--text-2); transition: all 0.15s; display: flex; align-items: center; gap: 0.8rem; font-weight: 400; }
+.qopt:hover:not(.disabled) { background: var(--blue-light); border-color: rgba(0,113,227,0.25); color: var(--text); }
+.qopt.correct { background: var(--green-light); border-color: rgba(52,199,89,0.3); color: #1a7a35; }
+.qopt.wrong   { background: var(--red-light); border-color: rgba(255,59,48,0.2); color: var(--red); opacity: 0.7; }
+.ql { width: 22px; height: 22px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border-med); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.65rem; flex-shrink: 0; font-weight: 500; }
+.qfb { display: none; margin-top: 0.8rem; padding: 0.65rem 1rem; border-radius: var(--r-sm); font-size: 0.85rem; font-weight: 400; }
+.qfb.show { display: block; }
+.qfb.ok { background: var(--green-light); color: #1a7a35; border: 1px solid rgba(52,199,89,0.25); }
+.qfb.no { background: var(--red-light);   color: var(--red);   border: 1px solid rgba(255,59,48,0.2); }
+.score-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.score-num { font-family: var(--mono); font-size: 0.8rem; color: var(--text-2); }
+.score-num span { color: var(--green); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .page { padding: 1.5rem 1rem 4rem; }
+  .page-title { font-size: 1.8rem; }
+  .cell { width: 48px; height: 48px; font-size: 0.85rem; }
+  .two-col { grid-template-columns: 1fr; }
+  nav { padding: 0 1rem; }
+  .nav-logo { margin-right: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">Array</span>
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="show(0)">概念 <span class="tab-num">01</span></button>
+    <button class="tab-btn" onclick="show(1)">記憶體 <span class="tab-num">02</span></button>
+    <button class="tab-btn" onclick="show(2)">操作 <span class="tab-num">03</span></button>
+    <button class="tab-btn" onclick="show(3)">複雜度 <span class="tab-num">04</span></button>
+    <button class="tab-btn" onclick="show(4)">vector <span class="tab-num">05</span></button>
+    <button class="tab-btn" onclick="show(5)">測驗 <span class="tab-num">06</span></button>
+  </div>
+</nav>
+
+<!-- 01 概念 -->
+<div class="page active" id="p0">
+  <div class="prog-track"><div class="prog-fill" style="width:16%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">Array 陣列</h1>
+  <p class="page-sub">最基礎的線性資料結構 — 連續記憶體中的有序元素集合</p>
+
+  <div class="card card-blue">
+    <div class="tip-row"><span class="tip-icon">💡</span><span><strong>核心定義：</strong>陣列在記憶體中<strong>連續</strong>儲存、類型<strong>相同</strong>的元素。每個元素有從 0 開始的整數索引，可以在 <strong>O(1)</strong> 時間內直接存取任意位置。</span></div>
+  </div>
+
+  <h2>宣告語法</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="cm">// 靜態陣列宣告</span>
+<span class="ty">int</span> scores[<span class="nm">5</span>];                          <span class="cm">// 宣告但未初始化</span>
+<span class="ty">int</span> scores[<span class="nm">5</span>] = {<span class="nm">90</span>, <span class="nm">85</span>, <span class="nm">72</span>, <span class="nm">68</span>, <span class="nm">95</span>};   <span class="cm">// 宣告並初始化</span>
+<span class="ty">int</span> scores[] = {<span class="nm">90</span>, <span class="nm">85</span>, <span class="nm">72</span>, <span class="nm">68</span>, <span class="nm">95</span>};   <span class="cm">// 讓編譯器推斷大小</span>
+
+<span class="cm">// 存取（O(1)）</span>
+scores[<span class="nm">0</span>] = <span class="nm">100</span>;       <span class="cm">// 修改</span>
+<span class="ty">int</span> x = scores[<span class="nm">2</span>];   <span class="cm">// 讀取 → 72</span>
+
+<span class="cm">// 遍歷（O(n)）</span>
+<span class="kw">for</span> (<span class="ty">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">5</span>; i++)
+    std::cout &lt;&lt; scores[i] &lt;&lt; <span class="st">" "</span>;</pre>
+  </div>
+
+  <h2>互動視覺化</h2>
+  <p>點擊任一格，查看 index 與記憶體位址：</p>
+  <div class="vis-wrap"><div class="arr-row" id="i-arr"></div></div>
+  <div class="out" id="i-log">← 點擊上方的格子</div>
+
+  <div class="divider"></div>
+
+  <h2>特性一覽</h2>
+  <div class="two-col">
+    <div class="card card-green">
+      <p style="font-size:.75rem;font-weight:600;color:var(--green);margin-bottom:.6rem;letter-spacing:.04em">✓ 優點</p>
+      <p style="font-size:.85rem">隨機存取 O(1)</p>
+      <p style="font-size:.85rem">快取友好（連續記憶體）</p>
+      <p style="font-size:.85rem">語法直觀，硬體直接對應</p>
+    </div>
+    <div class="card card-red">
+      <p style="font-size:.75rem;font-weight:600;color:var(--red);margin-bottom:.6rem;letter-spacing:.04em">✗ 限制</p>
+      <p style="font-size:.85rem">大小固定，無法動態調整</p>
+      <p style="font-size:.85rem">中間插入/刪除需搬移 O(n)</p>
+      <p style="font-size:.85rem">需預先知道最大容量</p>
+    </div>
+  </div>
+</div>
+
+<!-- 02 記憶體 -->
+<div class="page" id="p1">
+  <div class="prog-track"><div class="prog-fill" style="width:33%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">記憶體模型</h1>
+  <p class="page-sub">理解為什麼陣列可以 O(1) 存取任意元素</p>
+
+  <div class="card card-blue">
+    <div class="tip-row"><span class="tip-icon">📐</span>
+      <div>
+        <p style="margin-bottom:.3rem"><strong>位址計算公式</strong></p>
+        <p style="font-family:var(--mono);font-size:.82rem;color:var(--blue)">address(arr[i]) = base_address + i × sizeof(element)</p>
+        <p style="font-size:.8rem;margin-top:.4rem">無論 i 是多少，都只需一次乘法加一次加法 → 瞬間跳躍 O(1)</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>記憶體佈局與公式拆解</h2>
+  <p style="font-family:var(--mono);font-size:.78rem;color:var(--text-2);margin-bottom:.8rem">int arr[5] = {10, 20, 30, 40, 50}，base = 0x1000，sizeof(int) = 4</p>
+  <p style="font-size:0.85rem; color:var(--text-3); margin-bottom: 1rem;">👇 點擊下方任一位址，觀察 CPU 如何瞬間算出目標位置：</p>
+  <div id="mem-vis"></div>
+  
+  <!-- 升級：動態公式面板 -->
+  <div class="calc-card" id="calc-card">
+      <div style="margin-bottom: 12px; color: var(--text-2); font-family: var(--sans); font-size: 0.9rem;">計算 <code>arr[<span id="txt-index">i</span>]</code> 的實體位址：</div>
+      <div style="font-size: 1.1rem; margin-bottom: 10px;">
+        <span class="math-hl" id="hl-base">0x1000</span> + 
+        (<span class="math-hl" id="hl-index" style="color:var(--blue); font-weight:600;">Index</span> × 
+        <span class="math-hl" id="hl-size" style="color:var(--orange);">4 bytes</span>)
+      </div>
+      <div id="hl-res" style="font-weight: 600; color: var(--green); font-size: 1.3rem; opacity: 0; transition: opacity 0.4s ease-in-out; border-top: 1px solid var(--border); padding-top: 10px;">
+        = 0xResult
+      </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>為什麼陣列是 Cache-Friendly？</h2>
+  <div class="card card-purple">
+    <div class="tip-row"><span class="tip-icon">⚡</span><span>CPU 讀取記憶體時會載入整個 Cache Line（通常 64 bytes）。陣列元素連續排列，一次載入可涵蓋多個元素。Linked List 節點分散，每次存取可能觸發 Cache Miss。</span></div>
+  </div>
+  <div class="two-col" style="margin-top:.8rem">
+    <div class="card" style="text-align:center">
+      <p style="font-size:.7rem;font-weight:600;color:var(--green);letter-spacing:.04em;margin-bottom:.8rem">ARRAY — 連續</p>
+      <div style="display:flex;gap:2px;justify-content:center">
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+        <div style="width:22px;height:22px;background:rgba(52,199,89,.35);border:1px solid rgba(52,199,89,.5);border-radius:3px"></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--text-3);margin-top:.5rem">Cache Hit ✓</p>
+    </div>
+    <div class="card" style="text-align:center">
+      <p style="font-size:.7rem;font-weight:600;color:var(--red);letter-spacing:.04em;margin-bottom:.8rem">LINKED LIST — 分散</p>
+      <div style="display:flex;gap:10px;justify-content:center;align-items:center">
+        <div style="width:22px;height:22px;background:rgba(255,59,48,.2);border:1px solid rgba(255,59,48,.4);border-radius:3px"></div>
+        <span style="color:var(--text-3);font-size:.65rem">···</span>
+        <div style="width:22px;height:22px;background:rgba(255,59,48,.2);border:1px solid rgba(255,59,48,.4);border-radius:3px"></div>
+        <span style="color:var(--text-3);font-size:.65rem">···</span>
+        <div style="width:22px;height:22px;background:rgba(255,59,48,.2);border:1px solid rgba(255,59,48,.4);border-radius:3px"></div>
+      </div>
+      <p style="font-size:.72rem;color:var(--text-3);margin-top:.5rem">Cache Miss ✗</p>
+    </div>
+  </div>
+
+  <h2>指標與陣列</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="ty">int</span> arr[<span class="nm">5</span>] = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>, <span class="nm">50</span>};
+<span class="ty">int</span>* p = arr;  <span class="cm">// arr 本身就是指向首元素的指標</span>
+
+arr[<span class="nm">2</span>] == *(arr + <span class="nm">2</span>) == *(p + <span class="nm">2</span>)  <span class="cm">// 三種等價，都是 30</span>
+
+<span class="kw">sizeof</span>(arr) / <span class="kw">sizeof</span>(arr[<span class="nm">0</span>])  <span class="cm">// 取得陣列長度 → 5</span></pre>
+  </div>
+</div>
+
+<!-- 03 操作 -->
+<div class="page" id="p2">
+  <div class="prog-track"><div class="prog-fill" style="width:50%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">互動操作</h1>
+  <p class="page-sub">親手操作，感受每個動作的時間複雜度差異</p>
+
+  <div class="vis-wrap"><div class="arr-row" id="op-arr"></div></div>
+
+  <div class="ctrl-panel">
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-green">O(1)</span> 存取 / 讀取</div>
+      <div class="ctrl-row">
+        <input class="inp" id="acc-i" type="number" placeholder="index" min="0">
+        <button class="btn primary" onclick="doAccess()">讀取</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-green">O(1)</span> 修改元素</div>
+      <div class="ctrl-row">
+        <input class="inp" id="mod-i" type="number" placeholder="index" min="0">
+        <input class="inp" id="mod-v" type="number" placeholder="新值">
+        <button class="btn amber" onclick="doModify()">修改</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-orange">O(n)</span> 插入（會搬移後方元素）</div>
+      <div class="ctrl-row">
+        <input class="inp" id="ins-i" type="number" placeholder="位置" min="0">
+        <input class="inp" id="ins-v" type="number" placeholder="值">
+        <button class="btn success" onclick="doInsert()">插入</button>
+      </div>
+    </div>
+    <div class="ctrl-sec">
+      <div class="ctrl-lbl"><span class="badge b-orange">O(n)</span> 刪除（會搬移後方元素）</div>
+      <div class="ctrl-row">
+        <input class="inp" id="del-i" type="number" placeholder="index" min="0">
+        <button class="btn danger" onclick="doDelete()">刪除</button>
+        <button class="btn ghost" onclick="resetOp()">重置</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="out" id="op-log">← 使用上方面板操作陣列</div>
+</div>
+
+<!-- 04 複雜度 -->
+<div class="page" id="p3">
+  <div class="prog-track"><div class="prog-fill" style="width:66%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">時間複雜度</h1>
+  <p class="page-sub">哪些操作快？哪些慢？背後的原因是什麼？</p>
+
+  <table class="dtable">
+    <thead><tr><th>操作</th><th>複雜度</th><th>原因</th></tr></thead>
+    <tbody>
+      <tr><td><code style="font-family:var(--mono);color:var(--blue)">arr[i]</code> 隨機存取</td><td><span class="badge b-green">O(1)</span></td><td>直接計算位址，一步完成</td></tr>
+      <tr><td>末尾插入</td><td><span class="badge b-green">O(1)</span></td><td>知道 size，直接寫最後一格</td></tr>
+      <tr><td>末尾刪除</td><td><span class="badge b-green">O(1)</span></td><td>size-- 即可</td></tr>
+      <tr><td>搜尋（未排序）</td><td><span class="badge b-orange">O(n)</span></td><td>最壞需比較所有元素</td></tr>
+      <tr><td>Binary Search（已排序）</td><td><span class="badge b-blue">O(log n)</span></td><td>每次對半縮小範圍</td></tr>
+      <tr><td>中間插入</td><td><span class="badge b-orange">O(n)</span></td><td>插入點後所有元素右移</td></tr>
+      <tr><td>中間刪除</td><td><span class="badge b-orange">O(n)</span></td><td>刪除點後所有元素左移</td></tr>
+    </tbody>
+  </table>
+
+  <!-- 升級：引入 Chart.js 視覺化圖表 -->
+  <div style="margin-top: 2rem;">
+    <h2>效能視覺化對比</h2>
+    <p>隨著資料量 (N) 倍增，不同操作所需時間的成長曲線：</p>
+    <div class="card">
+        <div class="chart-wrapper">
+            <canvas id="bigOChart"></canvas>
+        </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <h2>插入動畫 — 感受 O(n) 的物理搬移成本</h2>
+  <p>觀察在 index 2 插入時，後方元素如何被迫<span style="color:var(--orange);font-weight:600;">右移</span>：</p>
+  <div class="vis-wrap" style="padding-top: 1rem;"><div class="arr-row" id="sh-arr"></div></div>
+  <div class="ctrl-row" style="margin:.8rem 0">
+    <button class="btn primary" onclick="animInsert()">▶ 播放動畫</button>
+    <button class="btn ghost" onclick="resetShift()">重置</button>
+  </div>
+  <div class="out" id="sh-log">點擊「播放動畫」查看 O(n) 的搬移過程</div>
+
+  <div class="divider"></div>
+
+  <h2>Binary Search 互動</h2>
+  <p>已排序陣列 [3, 7, 12, 18, 25, 33, 41, 55]，輸入目標值觀察搜尋過程：</p>
+  <div class="ctrl-row" style="margin:.8rem 0">
+    <input class="inp" id="bs-v" type="number" placeholder="目標值" style="width:90px">
+    <button class="btn primary" onclick="doBS()">搜尋</button>
+    <button class="btn ghost" onclick="resetBS()">重置</button>
+  </div>
+  <div class="vis-wrap"><div class="arr-row" id="bs-arr"></div></div>
+  <div class="out" id="bs-log">輸入數字後點擊搜尋</div>
+</div>
+
+<!-- 05 vector -->
+<div class="page" id="p4">
+  <div class="prog-track"><div class="prog-fill" style="width:83%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">std::vector</h1>
+  <p class="page-sub">動態陣列 — 解決靜態陣列大小固定的問題</p>
+
+  <div class="card card-blue">
+    <div class="tip-row"><span class="tip-icon">📦</span><span><strong>vector</strong> 是 STL 提供的動態陣列，底層是連續記憶體，容量不足時自動<strong>翻倍擴容</strong>。保有 O(1) 隨機存取，且不受固定大小限制。</span></div>
+  </div>
+
+  <h2>常用語法</h2>
+  <div class="code-wrap">
+    <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+    <pre><span class="kw">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="kw">using namespace</span> std;
+
+vector&lt;<span class="ty">int</span>&gt; v;              <span class="cm">// 空 vector</span>
+vector&lt;<span class="ty">int</span>&gt; v = {<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>};  <span class="cm">// 初始化</span>
+vector&lt;<span class="ty">int</span>&gt; v(<span class="nm">5</span>, <span class="nm">0</span>);       <span class="cm">// 5 個 0</span>
+
+v.<span class="fn">push_back</span>(<span class="nm">42</span>);    <span class="cm">// 末尾加入（均攤 O(1)）</span>
+v.<span class="fn">pop_back</span>();       <span class="cm">// 末尾移除（O(1)）</span>
+v[<span class="nm">0</span>]               <span class="cm">// 隨機存取（O(1)）</span>
+v.<span class="fn">size</span>()           <span class="cm">// 元素數</span>
+v.<span class="fn">capacity</span>()       <span class="cm">// 已分配容量</span></pre>
+  </div>
+
+  <h2>動態擴容示意</h2>
+  <p>觀察 size 與 capacity 的變化。當 size == capacity 時觸發 <strong>realloc</strong>：</p>
+  <div class="card" style="padding:1.2rem 1.5rem">
+    <div class="vec-wrap"><div class="vec-row" id="vec-vis"></div></div>
+    <div class="vstats">
+      <div>size <b id="v-sz">0</b></div>
+      <div>capacity <b id="v-cp">0</b></div>
+      <div id="v-rb" style="display:none;color:var(--orange)">⚡ realloc 發生！</div>
+    </div>
+  </div>
+  <div class="ctrl-row" style="margin:.8rem 0">
+    <button class="btn primary" onclick="vPush()">push_back()</button>
+    <button class="btn danger"  onclick="vPop()">pop_back()</button>
+    <button class="btn ghost"   onclick="vReset()">重置</button>
+  </div>
+  <div class="out" id="v-log">點擊 push_back() 觀察擴容行為</div>
+
+  <div class="divider"></div>
+
+  <h2>靜態陣列 vs vector</h2>
+  <table class="dtable">
+    <thead><tr><th>特性</th><th>int arr[N]</th><th>vector&lt;int&gt;</th></tr></thead>
+    <tbody>
+      <tr><td>大小</td><td>固定（編譯時決定）</td><td>動態（執行時可變）</td></tr>
+      <tr><td>記憶體</td><td>Stack</td><td>Heap（自動管理）</td></tr>
+      <tr><td>隨機存取</td><td><span class="badge b-green">O(1)</span></td><td><span class="badge b-green">O(1)</span></td></tr>
+      <tr><td>push_back</td><td>不支援</td><td>均攤 <span class="badge b-green">O(1)</span></td></tr>
+      <tr><td>Cache 效能</td><td>最優</td><td>幾乎等同（連續儲存）</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 06 測驗 -->
+<div class="page" id="p5">
+  <div class="prog-track"><div class="prog-fill" style="width:100%"></div></div>
+  <div class="eyebrow">資料結構 · 課堂 2</div>
+  <h1 class="page-title">知識測驗</h1>
+  <p class="page-sub">確認你對 Array 的掌握程度</p>
+
+  <div class="score-bar"><div class="score-num">答對 <span id="sc">0</span> / 5 題</div></div>
+
+  <div class="quiz-q">
+    <div class="qt">Q1. 以下哪個操作的時間複雜度是 O(1)？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q1','B')"><span class="ql">A</span>在陣列中間插入一個元素</div>
+      <div class="qopt" onclick="qa(this,'q1','B')"><span class="ql">B</span>用 index 讀取 arr[5]</div>
+      <div class="qopt" onclick="qa(this,'q1','B')"><span class="ql">C</span>在未排序陣列中搜尋某值</div>
+      <div class="qopt" onclick="qa(this,'q1','B')"><span class="ql">D</span>刪除陣列第一個元素</div>
+    </div>
+    <div class="qfb" id="fb-q1">arr[5] 直接計算 base + 5×size，無論陣列多大都只需一步。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q2. int arr[6] 的 base address 是 0x2000，sizeof(int) = 4。arr[3] 的位址是？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q2','C')"><span class="ql">A</span>0x2003</div>
+      <div class="qopt" onclick="qa(this,'q2','C')"><span class="ql">B</span>0x2006</div>
+      <div class="qopt" onclick="qa(this,'q2','C')"><span class="ql">C</span>0x200C</div>
+      <div class="qopt" onclick="qa(this,'q2','C')"><span class="ql">D</span>0x2010</div>
+    </div>
+    <div class="qfb" id="fb-q2">0x2000 + 3×4 = 0x2000 + 12(0xC) = 0x200C。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q3. vector 的 push_back() 均攤 O(1)，但偶爾會變成 O(n)，原因是？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q3','B')"><span class="ql">A</span>push_back 要先搜尋重複元素</div>
+      <div class="qopt" onclick="qa(this,'q3','B')"><span class="ql">B</span>容量不足時重新分配記憶體並複製所有元素</div>
+      <div class="qopt" onclick="qa(this,'q3','B')"><span class="ql">C</span>vector 底層是 Linked List</div>
+      <div class="qopt" onclick="qa(this,'q3','B')"><span class="ql">D</span>push_back 總是 O(n)</div>
+    </div>
+    <div class="qfb" id="fb-q3">擴容時在 Heap 重新分配更大的連續空間，並複製所有元素（O(n)）。但由於每次擴容翻倍，均攤每次 push_back 仍是 O(1)。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q4. 以下哪個場景<strong>不適合</strong>使用陣列？</div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q4','C')"><span class="ql">A</span>儲存 100 名學生成績，需要隨機查詢</div>
+      <div class="qopt" onclick="qa(this,'q4','C')"><span class="ql">B</span>實作靜態查詢表，索引已知</div>
+      <div class="qopt" onclick="qa(this,'q4','C')"><span class="ql">C</span>文字編輯器緩衝區（頻繁在任意位置插入/刪除字元）</div>
+      <div class="qopt" onclick="qa(this,'q4','C')"><span class="ql">D</span>儲存一週七天的溫度紀錄</div>
+    </div>
+    <div class="qfb" id="fb-q4">文字編輯器需要頻繁的任意位置插入/刪除，每次 O(n) 搬移成本，更適合 Linked List（如 Rope）或 Gap Buffer 結構。</div>
+  </div>
+
+  <div class="quiz-q">
+    <div class="qt">Q5. 取得靜態陣列長度的正確方式是？</div>
+    <div class="code-wrap" style="margin-bottom:.8rem">
+      <div class="code-bar"><div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div><span class="code-lang">C++</span></div>
+      <pre><span class="ty">int</span> arr[] = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};</pre>
+    </div>
+    <div class="quiz-opts">
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">A</span>arr.size()</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">B</span>sizeof(arr) / sizeof(arr[0])</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">C</span>arr.length()</div>
+      <div class="qopt" onclick="qa(this,'q5','B')"><span class="ql">D</span>strlen(arr)</div>
+    </div>
+    <div class="qfb" id="fb-q5">sizeof(arr) = 5×4 = 20，sizeof(arr[0]) = 4，20÷4 = 5。.size() / .length() 是 vector/string 方法，靜態陣列沒有。</div>
+  </div>
+
+  <div class="card card-green" id="final-card" style="display:none;margin-top:.5rem">
+    <p style="font-weight:600;color:var(--green);margin-bottom:.3rem">🎉 測驗完成</p>
+    <p id="final-txt" style="font-size:.88rem"></p>
+  </div>
+</div>
+
+<script>
+// NAV 及 Chart 初始化控制
+let chartRendered = false;
+
+function show(n) {
+  document.querySelectorAll('.page').forEach(function(p,i){ p.classList.toggle('active',i===n); });
+  document.querySelectorAll('.tab-btn').forEach(function(t,i){ t.classList.toggle('active',i===n); });
+  
+  // 延遲渲染 Chart，確保 DOM 已經 display: block 獲得正確寬高
+  if(n === 3 && !chartRendered) {
+    setTimeout(renderBigOChart, 100);
+    chartRendered = true;
+  }
+}
+
+// HELPERS
+function sleep(ms){ return new Promise(function(r){setTimeout(r,ms);}); }
+function setLog(id,txt,cls){
+  var el=document.getElementById(id);
+  el.className='out'+(cls?' '+cls:'');
+  el.textContent=txt;
+}
+function buildArrEl(containerId, data, clsMap, dimOthers) {
+  clsMap=clsMap||{}; dimOthers=dimOthers||false;
+  var el=document.getElementById(containerId); el.innerHTML='';
+  data.forEach(function(v,i){
+    var cw=document.createElement('div'); cw.className='cw';
+    var cell=document.createElement('div');
+    var cls='cell'+(clsMap[i]?' '+clsMap[i]:'');
+    if(dimOthers&&!clsMap[i]) cls+=' dim';
+    cell.className=cls; cell.textContent=v!==null?v:'';
+    var idx=document.createElement('div'); idx.className='cidx'; idx.textContent='['+i+']';
+    cw.appendChild(cell); cw.appendChild(idx); el.appendChild(cw);
+  });
+}
+
+// ── P0: INTRO ──
+var iData=[90,85,72,68,95], BASE=0x1000;
+buildArrEl('i-arr',iData,{});
+document.getElementById('i-arr').querySelectorAll('.cell').forEach(function(cell,i){
+  cell.onclick=function(){
+    document.querySelectorAll('#i-arr .cell').forEach(function(c){c.className='cell';});
+    cell.classList.add('c-blue');
+    var addr=BASE+i*4;
+    setLog('i-log','arr['+i+'] = '+iData[i]+'   ·   address: 0x'+addr.toString(16).toUpperCase()+'   ·   計算: 0x1000 + '+i+'×4 = 0x'+addr.toString(16).toUpperCase(),'info');
+  };
+});
+
+// ── P1: MEMORY (升級動畫拆解) ──
+(function(){
+  var mData=[10,20,30,40,50], vis=document.getElementById('mem-vis');
+  mData.forEach(function(v,i){
+    var addr=0x1000+i*4;
+    var row=document.createElement('div'); row.className='mem-row';
+    row.innerHTML='<div class="m-addr">0x'+addr.toString(16).toUpperCase()+'</div><div class="m-val">arr['+i+'] = '+v+'</div><div class="m-note">'+(i===0?'base address':'base + '+i+'×4')+'</div>';
+    
+    // 點擊事件：展示公式動畫
+    row.onclick=function(){
+      document.querySelectorAll('.mem-row').forEach(function(r){r.classList.remove('active');});
+      row.classList.add('active');
+      
+      var cc=document.getElementById('calc-card'); 
+      cc.style.display='block';
+      
+      // 重置動畫狀態
+      document.getElementById('txt-index').textContent = i;
+      document.getElementById('hl-index').textContent = i;
+      document.getElementById('hl-res').textContent = "= 0x" + addr.toString(16).toUpperCase();
+      
+      var hlBase = document.getElementById('hl-base');
+      var hlIndex = document.getElementById('hl-index');
+      var hlSize = document.getElementById('hl-size');
+      var hlRes = document.getElementById('hl-res');
+      
+      hlBase.style.background = 'transparent';
+      hlIndex.style.background = 'transparent';
+      hlSize.style.background = 'transparent';
+      hlRes.style.opacity = '0';
+
+      // 逐步亮起
+      setTimeout(() => { hlIndex.style.background = 'var(--blue-light)'; }, 100);
+      setTimeout(() => { hlSize.style.background = 'var(--orange-light)'; }, 400);
+      setTimeout(() => { hlBase.style.background = 'rgba(175,82,222,0.15)'; hlBase.style.color = 'var(--purple)'; }, 700);
+      setTimeout(() => { hlRes.style.opacity = '1'; }, 1100);
+    };
+    vis.appendChild(row);
+  });
+})();
+
+// ── P2: OPS ──
+var opArr=[15,42,7,88,31,60,23,99];
+function renderOp(cm){ buildArrEl('op-arr',opArr,cm||{}); }
+renderOp();
+
+function doAccess(){
+  var i=parseInt(document.getElementById('acc-i').value);
+  if(isNaN(i)||i<0||i>=opArr.length){setLog('op-log','❌ 無效的 index','err');return;}
+  var m={}; m[i]='c-blue'; renderOp(m);
+  setLog('op-log','✓  arr['+i+'] = '+opArr[i]+'   ·   O(1) — 直接計算位址，一步完成','ok');
+}
+function doModify(){
+  var i=parseInt(document.getElementById('mod-i').value);
+  var v=parseInt(document.getElementById('mod-v').value);
+  if(isNaN(i)||i<0||i>=opArr.length||isNaN(v)){setLog('op-log','❌ 輸入無效','err');return;}
+  var old=opArr[i]; opArr[i]=v;
+  var m={}; m[i]='c-orange'; renderOp(m);
+  setLog('op-log','✓  arr['+i+']: '+old+' → '+v+'   ·   O(1) — 直接寫入，一步完成','ok');
+}
+function doInsert(){
+  var i=parseInt(document.getElementById('ins-i').value);
+  var v=parseInt(document.getElementById('ins-v').value);
+  if(isNaN(i)||i<0||i>opArr.length||isNaN(v)){setLog('op-log','❌ 輸入無效','err');return;}
+  if(opArr.length>=10){setLog('op-log','陣列已滿（模擬上限 10）','warn');return;}
+  opArr.splice(i,0,v);
+  var m={}; m[i]='c-green'; renderOp(m);
+  var moved=opArr.length-1-i;
+  setLog('op-log','✓  在 ['+i+'] 插入 '+v+'   ·   O(n) — 後方 '+moved+' 個元素全部右移','warn');
+}
+function doDelete(){
+  var i=parseInt(document.getElementById('del-i').value);
+  if(isNaN(i)||i<0||i>=opArr.length){setLog('op-log','❌ 無效 index','err');return;}
+  var moved=opArr.length-1-i, old=opArr[i]; opArr.splice(i,1);
+  renderOp();
+  setLog('op-log','✓  刪除 arr['+i+']='+old+'   ·   O(n) — 後方 '+moved+' 個元素全部左移','warn');
+}
+function resetOp(){ opArr=[15,42,7,88,31,60,23,99]; renderOp(); setLog('op-log','← 已重置'); }
+
+// ── P3: SHIFT ANIM (物理搬移升級版) ──
+var shArr=[10,20,30,40,50], shifting=false;
+function buildSh(cm){ buildArrEl('sh-arr',shArr,cm||{}); }
+buildSh();
+
+async function animInsert(){
+  if(shifting)return; shifting=true;
+  shArr=[10,20,30,40,50]; buildSh();
+  await sleep(300);
+  setLog('sh-log','準備在 index=2 插入 99…');
+  
+  // 取得 DOM 中的儲存格，讓它們浮起並呈現物理移動感
+  var cwList = document.getElementById('sh-arr').querySelectorAll('.cw');
+
+  for(var i=shArr.length-1;i>=2;i--){
+    var currentCell = cwList[i].querySelector('.cell');
+    
+    // 加入我的浮動 class (物理視覺感)
+    currentCell.classList.add('shifting');
+    setLog('sh-log','搬移 arr['+i+']='+shArr[i]+' → arr['+(i+1)+']（第 '+(shArr.length-i)+' 次移動）');
+    
+    await sleep(400); // 浮起展示時間
+    
+    // 將值真正移到下一個陣列位子並重繪，維持視覺連貫
+    var m={}; m[i+1]='c-orange'; 
+    shArr[i+1] = shArr[i];
+    if(i===2) shArr[2] = null; // 清空原本位置
+    buildSh(m);
+    cwList = document.getElementById('sh-arr').querySelectorAll('.cw'); // refresh references
+    
+    await sleep(200);
+  }
+  
+  // 真正插入目標元素
+  shArr[2]=99; 
+  var m2={}; m2[2]='c-green'; buildSh(m2);
+  setLog('sh-log','✓ 插入完成！共搬移了 3 次 — 這就是 O(n) 的代價','ok');
+  shifting=false;
+}
+function resetShift(){ shifting=false; shArr=[10,20,30,40,50]; buildSh(); setLog('sh-log','點擊「播放動畫」查看 O(n) 的搬移過程'); }
+
+// ── P3: BINARY SEARCH ──
+var bsData=[3,7,12,18,25,33,41,55], bsRunning=false;
+function buildBS(cm,dim){ buildArrEl('bs-arr',bsData,cm||{},dim||false); }
+buildBS();
+
+async function doBS(){
+  if(bsRunning)return;
+  var target=parseInt(document.getElementById('bs-v').value);
+  if(isNaN(target)){setLog('bs-log','請輸入目標值');return;}
+  bsRunning=true; var step=0, left=0, right=bsData.length-1;
+  buildBS(); setLog('bs-log','開始搜尋 '+target+'…');
+  await sleep(400);
+  while(left<=right){
+    var mid=Math.floor((left+right)/2); step++;
+    var m={}; for(var k=left;k<=right;k++) m[k]='c-orange'; m[mid]='c-blue';
+    buildArrEl('bs-arr',bsData,m,true);
+    setLog('bs-log','第'+step+'次 | mid='+mid+' arr['+mid+']='+bsData[mid]+' vs 目標='+target);
+    await sleep(900);
+    if(bsData[mid]===target){
+      var m2={}; m2[mid]='c-green'; buildBS(m2);
+      setLog('bs-log','✓ 找到！arr['+mid+']='+target+'，共比較 '+step+' 次（O(log n)）','ok');
+      bsRunning=false; return;
+    } else if(bsData[mid]<target){ left=mid+1; } else { right=mid-1; }
+    await sleep(400);
+  }
+  buildBS(); setLog('bs-log','✗ 找不到 '+target+'，共比較 '+step+' 次','err');
+  bsRunning=false;
+}
+function resetBS(){ bsRunning=false; buildBS(); setLog('bs-log','輸入數字後點擊搜尋'); }
+
+// ── P3: CHART.JS 複雜度圖表 (新增功能) ──
+function renderBigOChart() {
+    const ctx = document.getElementById('bigOChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['10', '100', '1,000', '10,000'], // N (資料量)
+            datasets: [
+                {
+                    label: 'O(1) 讀取/末端操作',
+                    data: [1, 1, 1, 1], // 永遠都是固定時間
+                    borderColor: '#34c759', // var(--green)
+                    backgroundColor: 'rgba(52,199,89,0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1
+                },
+                {
+                    label: 'O(log n) 二分搜尋',
+                    data: [3.3, 6.6, 9.9, 13.2], // 呈對數成長
+                    borderColor: '#0071e3', // var(--blue)
+                    backgroundColor: 'rgba(0,113,227,0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1
+                },
+                {
+                    label: 'O(n) 開頭/中間插入',
+                    data: [10, 100, 1000, 10000], // 呈線性爆發成長
+                    borderColor: '#ff3b30', // var(--red)
+                    backgroundColor: 'rgba(255,59,48,0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    title: { display: true, text: '資料數量 N', font: {family: "'DM Sans', sans-serif"} },
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                },
+                y: { 
+                    title: { display: true, text: '執行所需步驟數 (Time)', font: {family: "'DM Sans', sans-serif"} },
+                    type: 'logarithmic', // 使用對數 Y 軸才方便在同一張圖塞下 O(1) 和 O(n) 的巨大落差
+                    grid: { color: 'rgba(0,0,0,0.05)' }
+                }
+            },
+            plugins: {
+                legend: { position: 'top', labels: { font: { family: "'DM Sans', sans-serif" } } },
+                tooltip: { titleFont: { family: "'DM Mono', monospace" }, bodyFont: { family: "'DM Sans', sans-serif" } }
+            }
+        }
+    });
+}
+
+// ── P4: VECTOR ──
+var vData=[], vCap=0;
+function renderVec(){
+  var el=document.getElementById('vec-vis'); el.innerHTML='';
+  vData.forEach(function(v,i){
+    var c=document.createElement('div'); c.className='vcell';
+    if(i===vData.length-1) c.classList.add('vnew');
+    c.textContent=v; el.appendChild(c);
+  });
+  for(var i=0;i<vCap-vData.length;i++){
+    var g=document.createElement('div'); g.className='cap-g'; g.textContent='·'; el.appendChild(g);
+  }
+  document.getElementById('v-sz').textContent=vData.length;
+  document.getElementById('v-cp').textContent=vCap;
+}
+function vPush(){
+  var rb=document.getElementById('v-rb'); rb.style.display='none';
+  var val=Math.floor(Math.random()*90)+10, oldCap=vCap;
+  if(vData.length===vCap){
+    vCap=vCap===0?1:vCap*2;
+    if(oldCap>0){ rb.style.display='block'; setLog('v-log','⚡ capacity 不足！重新分配：'+oldCap+' → '+vCap+'，複製 '+vData.length+' 個元素（O(n)）','warn'); }
+    else setLog('v-log','初始化 capacity = 1');
+  } else { setLog('v-log','push_back('+val+')  O(1) — capacity 足夠，直接寫入 ['+vData.length+']','ok'); }
+  vData.push(val); renderVec();
+  if(rb.style.display==='block') setTimeout(function(){rb.style.display='none';},2500);
+}
+function vPop(){
+  if(!vData.length){setLog('v-log','vector 已空');return;}
+  vData.pop(); renderVec();
+  setLog('v-log','pop_back()  O(1) — size='+vData.length+'，capacity 保持不變');
+}
+function vReset(){ vData=[]; vCap=0; renderVec(); setLog('v-log','點擊 push_back() 觀察擴容行為'); document.getElementById('v-rb').style.display='none'; }
+renderVec();
+
+// ── P5: QUIZ ──
+var qAns={q1:'B',q2:'C',q3:'B',q4:'C',q5:'B'};
+var qDone={}, score=0;
+
+function qa(el,qid,correct){
+  if(qDone[qid])return; qDone[qid]=true;
+  var opts=el.parentElement.querySelectorAll('.qopt');
+  opts.forEach(function(o){o.classList.add('disabled');});
+  var labels=['A','B','C','D'];
+  var chosen=labels[Array.from(opts).indexOf(el)];
+  var ok=chosen===qAns[qid];
+  el.classList.add(ok?'correct':'wrong');
+  if(!ok) opts[labels.indexOf(qAns[qid])].classList.add('correct');
+  var fb=document.getElementById('fb-'+qid);
+  fb.classList.add('show',ok?'ok':'no');
+  if(!ok) fb.textContent='✗ 正確答案是 '+qAns[qid]+'。 '+fb.textContent;
+  else{ fb.textContent='✓ 正確！'+fb.textContent; score++; }
+  document.getElementById('sc').textContent=score;
+  if(Object.keys(qDone).length===5){
+    var fc=document.getElementById('final-card'); fc.style.display='block';
+    var pct=Math.round(score/5*100);
+    document.getElementById('final-txt').textContent=
+      score===5?'滿分！陣列概念完全掌握，可以進入 Linked List 了。':
+      pct>=60?'答對 '+score+'/5 題（'+pct+'%）。建議複習答錯的部分。':
+      '答對 '+score+'/5 題（'+pct+'%）。建議回到前面章節重新複習。';
+  }
+}
+</script>
+</body>
+</html>

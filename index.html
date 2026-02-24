@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>資料結構互動式學習平台</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --surface2: #f5f5f7;
+  --border: rgba(0,0,0,0.08);
+  --border-med: rgba(0,0,0,0.12);
+  --text: #1d1d1f;
+  --text-2: #3d3d42;
+  --text-3: #86868b;
+  --blue: #0071e3;
+  --blue-light: #e8f1fb;
+  --green: #34c759;
+  --green-light: #eaf7ed;
+  --orange: #ff9500;
+  --orange-light: #fff4e0;
+  --purple: #af52de;
+  --purple-light: #f5eefa;
+  --teal: #5ac8fa;
+  --teal-light: #e8f7fc;
+  --red: #ff3b30;
+  --red-light: #fff1f0;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', -apple-system, sans-serif;
+  --r: 18px;
+  --r-lg: 24px;
+  --shadow: 0 2px 20px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+}
+html { scroll-behavior: smooth; }
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: var(--sans); 
+  font-size: 16px; 
+  line-height: 1.6; 
+  min-height: 100vh; 
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(180deg, #ffffff 0%, var(--bg) 100%);
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.5rem;
+}
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--blue);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,113,227,0.3);
+}
+.logo-icon svg {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+.site-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 0.8rem;
+}
+.site-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-2);
+  font-weight: 400;
+  max-width: 500px;
+  margin: 0 auto 2rem;
+}
+.stats-row {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--blue);
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* MAIN */
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 3rem 2rem 5rem;
+}
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* UNIT CARDS */
+.units-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+.unit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.8rem;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.unit-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--blue);
+}
+.unit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.unit-card:hover::before {
+  opacity: 1;
+}
+.unit-card.u1::before { background: var(--blue); }
+.unit-card.u2::before { background: var(--green); }
+.unit-card.u3::before { background: var(--orange); }
+.unit-card.u4::before { background: var(--purple); }
+.unit-card.u5::before { background: var(--teal); }
+
+.unit-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.unit-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.unit-icon svg {
+  width: 26px;
+  height: 26px;
+}
+.u1 .unit-icon { background: var(--blue-light); }
+.u1 .unit-icon svg { fill: var(--blue); }
+.u2 .unit-icon { background: var(--green-light); }
+.u2 .unit-icon svg { fill: var(--green); }
+.u3 .unit-icon { background: var(--orange-light); }
+.u3 .unit-icon svg { fill: var(--orange); }
+.u4 .unit-icon { background: var(--purple-light); }
+.u4 .unit-icon svg { fill: var(--purple); }
+.u5 .unit-icon { background: var(--teal-light); }
+.u5 .unit-icon svg { fill: #2bacd5; }
+
+.unit-meta {
+  flex: 1;
+}
+.unit-num {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.2rem;
+}
+.unit-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.25;
+}
+.unit-desc {
+  font-size: 0.9rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 1.2rem;
+}
+.unit-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tag {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--surface2);
+  color: var(--text-2);
+}
+.unit-arrow {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--surface2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+}
+.unit-arrow svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--text-3);
+  transition: fill 0.25s, transform 0.25s;
+}
+.unit-card:hover .unit-arrow {
+  background: var(--blue);
+}
+.unit-card:hover .unit-arrow svg {
+  fill: white;
+  transform: translateX(2px);
+}
+
+/* FEATURES */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+.feature {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 1.5rem;
+  text-align: center;
+}
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 0.8rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.feature-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.feature:nth-child(1) .feature-icon { background: var(--blue-light); }
+.feature:nth-child(1) .feature-icon svg { fill: var(--blue); }
+.feature:nth-child(2) .feature-icon { background: var(--green-light); }
+.feature:nth-child(2) .feature-icon svg { fill: var(--green); }
+.feature:nth-child(3) .feature-icon { background: var(--purple-light); }
+.feature:nth-child(3) .feature-icon svg { fill: var(--purple); }
+.feature:nth-child(4) .feature-icon { background: var(--orange-light); }
+.feature:nth-child(4) .feature-icon svg { fill: var(--orange); }
+.feature-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.feature-desc {
+  font-size: 0.82rem;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+}
+.footer-text {
+  font-size: 0.82rem;
+  color: var(--text-3);
+}
+.footer-text a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.footer-text a:hover {
+  text-decoration: underline;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  header { padding: 3rem 1.5rem 2rem; }
+  .site-title { font-size: 2rem; }
+  .site-subtitle { font-size: 1rem; }
+  main { padding: 2rem 1.5rem 4rem; }
+  .units-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.81l7 3.5v7.38l-7-3.5V8.81zm9 10.88v-7.38l7-3.5v7.38l-7 3.5z"/></svg>
+    </div>
+  </div>
+  <h1 class="site-title">資料結構互動式學習</h1>
+  <p class="site-subtitle">透過視覺化互動教材，深入理解程式設計的核心基礎</p>
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">學習單元</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">25+</div>
+      <div class="stat-label">互動練習</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">C++</div>
+      <div class="stat-label">程式語言</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h2 class="section-title">課程單元</h2>
+  <div class="units-grid">
+    
+    <a href="unit1_intro.html" class="unit-card u1">
+      <div class="unit-header">
+        <div class="unit-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+        </div>
+        <div class="unit-meta">
+          <div class="unit-num">UNIT 01</div>
+          <div class="unit-title">資料結構導論</div>
+        </div>
+      </div>
+      <p class="unit-desc">認識資料結構的基本概念、分類方式與 Big O 時間複雜度分析</p>
+      <div class="unit-tags">
+        <span class="tag">ADT</span>
+        <span class="tag">Big O</span>
+        <span class="tag">分類</span>
+      </div>
+      <div class="unit-arrow">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </a>
+
+    <a href="unit2_array.html" class="unit-card u2">
+      <div class="unit-header">
+        <div class="unit-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h4v4H4V4zm6 0h4v4h-4V4zm6 0h4v4h-4V4zM4 10h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM4 16h4v4H4v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4z"/></svg>
+        </div>
+        <div class="unit-meta">
+          <div class="unit-num">UNIT 02</div>
+          <div class="unit-title">陣列 Array</div>
+        </div>
+      </div>
+      <p class="unit-desc">學習連續記憶體配置、索引存取及陣列操作的效率分析</p>
+      <div class="unit-tags">
+        <span class="tag">O(1) 存取</span>
+        <span class="tag">記憶體</span>
+        <span class="tag">索引</span>
+      </div>
+      <div class="unit-arrow">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </a>
+
+    <a href="unit3_stack.html" class="unit-card u3">
+      <div class="unit-header">
+        <div class="unit-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 18h16v2H4v-2zm0-5h16v2H4v-2zm0-5h16v2H4V8zm0-5h16v2H4V3z"/></svg>
+        </div>
+        <div class="unit-meta">
+          <div class="unit-num">UNIT 03</div>
+          <div class="unit-title">堆疊 Stack</div>
+        </div>
+      </div>
+      <p class="unit-desc">理解 LIFO 原則、Push/Pop 操作與括號匹配等經典應用</p>
+      <div class="unit-tags">
+        <span class="tag">LIFO</span>
+        <span class="tag">遞迴</span>
+        <span class="tag">括號匹配</span>
+      </div>
+      <div class="unit-arrow">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </a>
+
+    <a href="unit4_queue.html" class="unit-card u4">
+      <div class="unit-header">
+        <div class="unit-icon">
+          <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h16v2H4v-2z"/></svg>
+        </div>
+        <div class="unit-meta">
+          <div class="unit-num">UNIT 04</div>
+          <div class="unit-title">佇列 Queue</div>
+        </div>
+      </div>
+      <p class="unit-desc">學習 FIFO 原則、環形佇列實作與 BFS 廣度優先搜尋應用</p>
+      <div class="unit-tags">
+        <span class="tag">FIFO</span>
+        <span class="tag">Circular</span>
+        <span class="tag">BFS</span>
+      </div>
+      <div class="unit-arrow">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </a>
+
+    <a href="unit5_linkedlist.html" class="unit-card u5">
+      <div class="unit-header">
+        <div class="unit-icon">
+          <svg viewBox="0 0 24 24"><path d="M17 7h-4v2h4c1.65 0 3 1.35 3 3s-1.35 3-3 3h-4v2h4c2.76 0 5-2.24 5-5s-2.24-5-5-5zm-6 8H7c-1.65 0-3-1.35-3-3s1.35-3 3-3h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-2zm-3-4h8v2H8v-2z"/></svg>
+        </div>
+        <div class="unit-meta">
+          <div class="unit-num">UNIT 05</div>
+          <div class="unit-title">鏈結串列 Linked List</div>
+        </div>
+      </div>
+      <p class="unit-desc">掌握節點與指標概念、單向/雙向/環形鏈結串列的實作</p>
+      <div class="unit-tags">
+        <span class="tag">Node</span>
+        <span class="tag">Pointer</span>
+        <span class="tag">動態配置</span>
+      </div>
+      <div class="unit-arrow">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <h2 class="section-title">學習特色</h2>
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 6v3l4-4-4-4v3c-4.42 0-8 3.58-8 8 0 1.57.46 3.03 1.24 4.26L6.7 14.8c-.45-.83-.7-1.79-.7-2.8 0-3.31 2.69-6 6-6zm6.76 1.74L17.3 9.2c.44.84.7 1.79.7 2.8 0 3.31-2.69 6-6 6v-3l-4 4 4 4v-3c4.42 0 8-3.58 8-8 0-1.57-.46-3.03-1.24-4.26z"/></svg>
+      </div>
+      <div class="feature-title">互動式視覺化</div>
+      <div class="feature-desc">透過動畫和互動操作理解資料結構運作原理</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+      </div>
+      <div class="feature-title">C++ 程式碼</div>
+      <div class="feature-desc">完整的程式碼範例與 STL 標準函式庫教學</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+      </div>
+      <div class="feature-title">隨堂測驗</div>
+      <div class="feature-desc">每個單元都有測驗題目即時檢驗學習成效</div>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+      </div>
+      <div class="feature-title">自主學習</div>
+      <div class="feature-desc">按照自己的步調學習，隨時回顧複習</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p class="footer-text">資料結構互動式學習平台 · 使用 GitHub Pages 架設</p>
+</footer>
+
+</body>
+</html>
